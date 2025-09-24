@@ -11,6 +11,9 @@ dependencies = [
     "icalendar>=5.0.11",
     "aiohttp>=3.9.0",
     "python-dateutil>=2.8.0",
+    "uvicorn>=0.30.0",
+    "fastapi>=0.110.0",
+    "websockets>=12.0",
 ]
 
 [build-system]
@@ -30,7 +33,7 @@ dev-dependencies = [
 ]
 
 [project.scripts]
-mcp-uji-academic = "main:main"
+mcp-uji-academic = "server:main"
 
 [tool.black]
 line-length = 88

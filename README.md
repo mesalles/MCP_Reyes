@@ -1,379 +1,239 @@
 # MCP UJI Academic Server
 
-A comprehensive Model Context Protocol (MCP) server that provides access to the Universitat Jaume I (UJI) academic information system through REST API endpoints. This server enables seamless integration with UJI's academic data including subjects, degree programs, schedules, and university locations.
+Servidor MCP (Model Context Protocol) completo que proporciona acceso a la información académica de la Universitat Jaume I (UJI). Soporta tanto modo local (stdio) como remoto (HTTP/WebSocket) para máxima flexibilidad de despliegue.
 
-## Features
+## ✨ Características Principales
 
-- **Comprehensive Academic Data Access**: Retrieve subjects, degree programs, schedules, and locations
-- **Multilingual Support**: Content available in Catalan, Spanish, and English
-- **Intelligent Caching**: Built-in caching system for improved performance
-- **Search Functionality**: Search across subjects, degrees, and locations
-- **Schedule Management**: Parse and manage class and exam schedules in iCalendar format
-- **Error Handling**: Robust error handling with meaningful error messages
-- **Type Safety**: Full type hints and Pydantic models for data validation
+- 🎓 **Acceso Completo a Datos Académicos**: Asignaturas, titulaciones, horarios y ubicaciones
+- 🌐 **Soporte Multiidioma**: Contenido en catalán, español e inglés  
+- 🔄 **Modo Dual**: Local (stdio) para Claude Desktop local y remoto (HTTP/WebSocket) para acceso de red
+- ⚡ **Cache Inteligente**: Sistema de caché integrado para mejor rendimiento
+- 🔍 **Funcionalidad de Búsqueda**: Búsqueda avanzada en asignaturas, titulaciones y ubicaciones
+- 📅 **Gestión de Horarios**: Análisis y gestión de horarios en formato iCalendar
+- 🛡️ **Manejo Robusto de Errores**: Gestión de errores con mensajes descriptivos
+- 🔒 **Seguridad de Tipos**: Type hints completos y modelos Pydantic para validación
 
-## Installation
+## 🔧 Instalación
 
-### Prerequisites
+### Prerrequisitos
 
-- Python 3.12 or higher
-- UV package manager
+- Python 3.12 o superior
+- Gestor de paquetes UV
 
-### Setup
+### Configuración
 
-1. **Clone or download the project**:
+1. **Clona el repositorio**:
+
    ```bash
    git clone <repository-url>
    cd MCP_UJI_academic
    ```
 
-2. **Install dependencies using UV**:
+2. **Instala las dependencias con UV**:
+
    ```bash
    uv sync
    ```
 
-3. **Activate the virtual environment**:
-   ```bash
-   source .venv/bin/activate  # On Linux/macOS
-   # or
-   .venv\Scripts\activate  # On Windows
-   ```
+## 🚀 Uso del Servidor
 
-## Usage
-
-### Running the MCP Server
+### Modo Local (stdio) - Para Claude Desktop Local
 
 ```bash
-# Using UV
-uv run main.py
+# Opción 1: Usar el launcher
+python start_server.py --mode local
 
-# Or with Python directly
-python main.py
+# Opción 2: Directamente
+uv run server.py
 ```
 
-### Integration with MCP Clients
+### Modo Remoto (HTTP/WebSocket) - Para Acceso de Red
 
-Add the server to your MCP client configuration. Example for Claude Desktop:
+```bash
+# Servidor en localhost
+python start_server.py --mode remote --host 127.0.0.1 --port 8000
+
+# Servidor accesible desde la red
+python start_server.py --mode remote --host 0.0.0.0 --port 8000
+
+# Con auto-reload para desarrollo
+python start_server.py --mode remote --host 127.0.0.1 --port 8000 --reload
+```
+
+## 📋 Configuración en Claude Desktop
+
+### Para Modo Local (stdio)
+
+Añade a tu configuración de Claude Desktop (`claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "mcp-uji-academic": {
       "command": "uv",
-      "args": ["run", "/path/to/MCP_UJI_academic/main.py"],
-      "cwd": "/path/to/MCP_UJI_academic"
+      "args": ["run", "/ruta/completa/al/proyecto/MCP_UJI_academic/server.py"],
+      "description": "UJI Academic Server - Local Mode"
     }
   }
 }
 ```
 
-## Available Tools
+### Para Modo Remoto (WebSocket)
 
-### Subject Management
-
-#### `get_subjects`
-Retrieve a paginated list of subjects from the UJI academic system.
-
-**Parameters:**
-- `start` (optional): Starting record number (default: 0)
-- `limit` (optional): Number of records to return (default: 20, max: 100)
-- `full` (optional): Return full subject details (default: false)
-
-**Example:**
 ```json
 {
-  "name": "get_subjects",
-  "arguments": {
-    "start": 0,
-    "limit": 10,
-    "full": true
+  "mcpServers": {
+    "mcp-uji-academic-remote": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://localhost:8000/ws/claude-desktop"],
+      "description": "UJI Academic Server - Remote Mode"
+    }
   }
 }
 ```
 
-#### `get_subject_details`
-Get detailed information for a specific subject.
+## 🌐 Endpoints del Servidor Remoto
 
-**Parameters:**
-- `subject_id` (required): Subject identifier (e.g., "AE1003")
+Cuando ejecutas en modo remoto, el servidor expone:
 
-#### `get_subject_groups`
-Get groups for a specific subject.
+- 🏠 **Página principal**: `http://localhost:8000/`  
+- 💓 **Health check**: `http://localhost:8000/health`
+- 🛠️ **Lista de herramientas**: `http://localhost:8000/tools`
+- 🔌 **WebSocket MCP**: `ws://localhost:8000/ws/{client_id}`
 
-**Parameters:**
-- `subject_id` (required): Subject identifier
+## 🛠️ Herramientas MCP Disponibles
 
-#### `get_subject_subgroups`
-Get subgroups for a specific subject, including Theory (TE) and Practice (PR) groups.
+### Asignaturas
 
-**Parameters:**
-- `subject_id` (required): Subject identifier
+- **`get_subjects`**: Obtener lista paginada de asignaturas
+- **`search_subjects`**: Buscar asignaturas por nombre o ID
+- **`get_subject_details`**: Detalles completos de una asignatura
 
-#### `search_subjects`
-Search subjects by name or ID with language preference.
+### Titulaciones  
 
-**Parameters:**
-- `query` (required): Search query
-- `language` (optional): Language preference ("ca", "es", "en", default: "es")
+- **`get_degrees`**: Obtener lista de titulaciones
+- **`search_degrees`**: Buscar titulaciones por nombre
+- **`get_degree_details`**: Detalles de una titulación específica
 
-### Degree Program Management
+### Ubicaciones
 
-#### `get_degrees`
-Get list of all degree programs.
+- **`get_locations`**: Obtener ubicaciones universitarias
+- **`search_locations`**: Buscar ubicaciones por nombre
 
-**Parameters:**
-- `full` (optional): Return full degree details (default: true)
+### Horarios
 
-#### `get_degree_details`
-Get detailed information for a specific degree program.
+- **`get_class_schedule`**: Horarios de clases por titulación y año
+- **`get_exam_schedule`**: Horarios de exámenes por titulación y año
 
-**Parameters:**
-- `degree_id` (required): Degree program identifier (e.g., "208")
+## 📚 Recursos MCP
 
-#### `search_degrees`
-Search degree programs by name.
+- **`uji://api/info`**: Información sobre la API y endpoints disponibles
 
-**Parameters:**
-- `query` (required): Search query
-- `language` (optional): Language preference ("ca", "es", "en", default: "es")
+## 🧪 Desarrollo y Testing
 
-### Schedule Management
+### Ejecutar Tests
 
-#### `get_class_schedule`
-Get class schedule for a degree program in a specific year.
+```bash
+# Tests de integración
+uv run python integration_test.py
 
-**Parameters:**
-- `year` (required): Academic year (e.g., "2025")
-- `degree_id` (required): Degree program identifier
-
-#### `get_exam_schedule`
-Get exam schedule for a degree program in a specific year.
-
-**Parameters:**
-- `year` (required): Academic year (e.g., "2025")
-- `degree_id` (required): Degree program identifier
-
-### Location Management
-
-#### `get_locations`
-Get list of all university locations.
-
-**Parameters:**
-- `full` (optional): Return full location details (default: true)
-
-#### `get_location_details`
-Get detailed information for a specific location.
-
-**Parameters:**
-- `location_id` (required): Location identifier (e.g., "ITC156DL")
-
-#### `search_locations`
-Search university locations by building name or description.
-
-**Parameters:**
-- `query` (required): Search query
-
-### Utility Tools
-
-#### `clear_cache`
-Clear the API client cache to force fresh data retrieval.
-
-**Parameters:** None
-
-## API Endpoints
-
-The server connects to the following UJI API endpoints:
-
-### Academic Data
-- **Base URL**: `http://ujiapps.uji.es/lod-autorest/api/datasets/`
-- **Subjects**: `/asignaturas`
-- **Degrees**: `/estudios`
-- **Locations**: `/ubicaciones`
-
-### Schedule Data
-- **Base URL**: `http://ujiapps.uji.es/sia/rest/publicacion/`
-- **Class Schedules**: `/{year}/estudio/{degree_id}/horarios`
-- **Exam Schedules**: `/{year}/estudio/{degree_id}/examenes`
-
-## Data Models
-
-The server uses Pydantic models for data validation and type safety:
-
-- **Subject**: Subject information with multilingual names
-- **Degree**: Degree program details
-- **Location**: University location information
-- **ScheduleEvent**: Calendar event information
-- **API Responses**: Structured responses with pagination
-
-## Example Usage Scenarios
-
-### 1. Finding Subjects for a Degree Program
-```json
-{
-  "name": "search_subjects",
-  "arguments": {
-    "query": "Mathematics",
-    "language": "en"
-  }
-}
+# Test específico del servidor
+uv run python test_server.py
 ```
 
-### 2. Getting Class Schedule
-```json
-{
-  "name": "get_class_schedule",
-  "arguments": {
-    "year": "2025",
-    "degree_id": "208"
-  }
-}
+### Desarrollo con Auto-reload
+
+```bash
+python start_server.py --mode remote --reload
 ```
 
-### 3. Searching University Locations
-```json
-{
-  "name": "search_locations",
-  "arguments": {
-    "query": "library"
-  }
-}
+### Verificar Servidor Remoto
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Lista de herramientas disponibles  
+curl http://localhost:8000/tools
 ```
 
-## Configuration
+## 🔗 API Externa Utilizada
 
-### Environment Variables
+Este servidor utiliza la API REST oficial de UJI:
 
-The server supports the following configuration options:
+- **Base URL**: https://ujiapps.uji.es/lod-autorest/api/
+- **Datasets**: asignaturas, titulaciones, ubicaciones, horarios
+- **Formatos**: JSON, iCalendar (para horarios)
 
-- **API Timeout**: Default 30 seconds
-- **Cache Expiry**: Default 15 minutes
-- **Page Size**: Default 20 records
+## 📁 Estructura del Proyecto
 
-### Logging
-
-The server includes comprehensive logging for debugging and monitoring:
-
-```python
-import logging
-logging.basicConfig(level=logging.INFO)
-```
-
-## Error Handling
-
-The server includes robust error handling for:
-
-- HTTP errors (404, 500, etc.)
-- Network timeouts
-- Malformed JSON responses
-- API rate limiting
-- Calendar parsing errors
-
-Error responses include:
-- Error type and message
-- HTTP status code
-- Endpoint information
-- Tool context
-
-## Performance
-
-### Caching
-- In-memory cache with configurable expiration
-- Automatic cache invalidation
-- Manual cache clearing via `clear_cache` tool
-
-### Optimization
-- Connection pooling with requests session
-- Efficient pagination handling
-- Selective data loading (full vs. summary)
-
-## Development
-
-### Project Structure
 ```
 MCP_UJI_academic/
-├── main.py              # Entry point
-├── server.py            # MCP server implementation
-├── api_client.py        # UJI API client
-├── models.py            # Pydantic data models
-├── pyproject.toml       # UV project configuration
-└── README.md           # Documentation
+├── server.py              # Servidor MCP principal (modo local)
+├── remote_server.py       # Servidor HTTP/WebSocket (modo remoto)  
+├── start_server.py        # Launcher para ambos modos
+├── api_client.py          # Cliente API de UJI
+├── models.py              # Modelos Pydantic
+├── integration_test.py    # Tests de integración
+├── test_server.py         # Tests del servidor
+├── claude_desktop_config.json  # Ejemplo configuración Claude
+├── pyproject.toml         # Configuración del proyecto
+└── README.md              # Esta documentación
 ```
 
-### Dependencies
+## 🔧 Solución de Problemas
 
-Core dependencies:
-- `mcp>=1.0.0`: Model Context Protocol framework
-- `requests>=2.31.0`: HTTP client
-- `pydantic>=2.5.0`: Data validation
-- `icalendar>=5.0.11`: Calendar parsing
-- `aiohttp>=3.9.0`: Async HTTP support
-- `python-dateutil>=2.8.0`: Date handling
-
-Development dependencies:
-- `pytest>=7.4.0`: Testing framework
-- `black>=23.0.0`: Code formatting
-- `mypy>=1.5.0`: Type checking
-- `ruff>=0.1.0`: Linting
-
-### Running Tests
+### Error "Port already in use"
 
 ```bash
-# Install development dependencies
-uv sync --dev
+# Verificar qué proceso usa el puerto
+lsof -i :8000
 
-# Run tests
-uv run pytest
-
-# Run with coverage
-uv run pytest --cov=. --cov-report=html
+# Usar otro puerto
+python start_server.py --mode remote --port 8001
 ```
 
-### Code Quality
+### Error de conexión WebSocket
+
+- Verifica que el servidor remoto esté ejecutándose
+- Comprueba la URL del WebSocket en la configuración
+- Revisa los logs del servidor para errores
+
+### Problemas con uv
 
 ```bash
-# Format code
-uv run black .
-
-# Type checking
-uv run mypy .
-
-# Linting
-uv run ruff check .
+# Reinstalar dependencias
+uv sync --reinstall
 ```
 
-## Contributing
+## 🚦 Estado del Proyecto
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Run code quality checks
-6. Submit a pull request
+- ✅ Servidor local (stdio) funcional
+- ✅ Servidor remoto (HTTP/WebSocket) funcional  
+- ✅ 8 herramientas MCP implementadas
+- ✅ Tests de integración completos
+- ✅ Documentación completa
+- ✅ Ejemplos de configuración
 
-## License
+## 📄 Licencia
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+MIT License
 
-## Support
+## 🤝 Contribuciones
 
-For issues and questions:
-1. Check the error logs for detailed error messages
-2. Verify API endpoint availability
-3. Check network connectivity to UJI servers
-4. Review the MCP client configuration
+Las contribuciones son bienvenidas. Por favor:
 
-## Changelog
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-### v1.0.0
-- Initial release
-- Complete UJI Academic API integration
-- MCP server implementation
-- Multilingual support
-- Caching system
-- Comprehensive error handling
+## 📞 Soporte
 
-## Acknowledgments
+Si encuentras algún problema o tienes preguntas:
 
-- Universitat Jaume I for providing the academic data APIs
-- Model Context Protocol community for the framework
-- Contributors to the open-source dependencies
+1. Revisa la sección de solución de problemas
+2. Ejecuta los tests de integración
+3. Verifica la configuración de Claude Desktop
+4. Crea un issue en el repositorio
