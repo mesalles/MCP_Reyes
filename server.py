@@ -633,21 +633,40 @@ async def main():
     mcp_server = MCPUJIServer()
     
     try:
-        # Setup cleanup on server shutdown
-        async with stdio_server() as streams:
+        # Use stdio_server context manager correctly
+        async with stdio_server() as (read_stream, write_stream):
             logger.info("Server running with stdio transport")
-            await mcp_server.server.run(
-                streams[0], streams[1],
-                InitializationOptions(
-                    server_name="mcp-uji-academic",
-                    server_version="1.0.0",
-                    capabilities=mcp_server.server.get_capabilities()
-                )
+            
+            # Import required types
+            from mcp.types import ServerCapabilities, ToolsCapability, ResourcesCapability
+            
+            # Create capabilities manually
+            capabilities = ServerCapabilities(
+                tools=ToolsCapability(),
+                resources=ResourcesCapability()
             )
+            
+            # Create initialization options with capabilities
+            init_options = InitializationOptions(
+                server_name="mcp-uji-academic",
+                server_version="1.0.0",
+                capabilities=capabilities
+            )
+            
+            # Run the server
+            await mcp_server.server.run(
+                read_stream=read_stream,
+                write_stream=write_stream,
+                initialization_options=init_options,
+                raise_exceptions=True
+            )
+            
     except KeyboardInterrupt:
         logger.info("Server interrupted by user")
     except Exception as e:
         logger.error(f"Server error: {e}")
+        import traceback
+        traceback.print_exc()
         raise
     finally:
         mcp_server.cleanup()
