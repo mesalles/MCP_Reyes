@@ -76,9 +76,9 @@ El archivo `docker-compose.yml` expone el puerto 8084. Ajusta el mapeo si necesi
 
 ### Servidor remoto de referencia
 
-- URL base: `http://150.128.81.57:8084`
-- Endpoint MCP: `http://150.128.81.57:8084/mcp`
-- Health check: `http://150.128.81.57:8084/health`
+- URL base: `http://<IP_SERVIDOR_REMOTO>:8084`
+- Endpoint MCP: `http://<IP_SERVIDOR_REMOTO>:8084/mcp`
+- Health check: `http://<IP_SERVIDOR_REMOTO>:8084/health`
 
 Sustituye la IP por la de tu despliegue cuando publiques el servidor en otro host.
 
@@ -104,6 +104,7 @@ Todas las herramientas devuelven JSON estructurado y, cuando procede, informaci�
 - El endpoint MCP habla JSON-RPC 2.0 sobre HTTP; cualquier cliente compatible puede usarlo.
 - Asegúrate de que el puerto (`8084` por defecto) esté accesible desde tu máquina o túnel SSH.
 - Para entornos públicos, añade autenticación o proxies seguros según tus políticas.
+- **Si usas Docker localmente:** el servidor estará disponible en `http://localhost:8084/mcp`. Asegúrate de que el contenedor esté corriendo antes de conectar clientes.
 
 ### MCP Inspector (`npx`)
 
@@ -113,7 +114,7 @@ npx @modelcontextprotocol/inspector
 
 1. Abre el navegador (suele abrir `http://localhost:3000`).
 2. Selecciona **Streamable HTTP** como transporte.
-3. Introduce la URL del endpoint (`http://150.128.81.57:8084/mcp` o tu instancia).
+3. Introduce la URL del endpoint (`http://127.0.0.1:8084/mcp` si usas Docker localmente, o `http://<IP_SERVIDOR_REMOTO>:8084/mcp` para el servidor remoto).
 4. Pulsa **Connect** y prueba cualquiera de las ocho herramientas disponibles.
 
 ### VS Code (extensión MCP)
@@ -125,7 +126,7 @@ Añade al `settings.json` del usuario o del workspace:
   "mcp.servers": {
     "mcp-uji-academic": {
       "transport": "http",
-      "url": "http://150.128.81.57:8084/mcp"
+      "url": "http://127.0.0.1:8084/mcp"
     }
   }
 }
@@ -172,7 +173,25 @@ Como punto de partida, añade algo similar a tu `claude_desktop_config.json`:
 }
 ```
 
-- Ajusta `cwd` a la ruta real del proyecto cuando uses la copia local.
+Si prefieres usar Docker, configura el comando para lanzar el contenedor:
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic": {
+      "command": "docker",
+      "args": [
+        "compose",
+        "up",
+        "--build"
+      ],
+      "cwd": "/ruta/completa/a/MCP_UJI_academic"
+    }
+  }
+}
+```
+
+- Ajusta `cwd` a la ruta real del proyecto cuando uses la copia local o Docker.
 - El comando dentro de `args` debe ir en una sola línea; JSON no admite saltos manuales (`\`) dentro de strings.
 - Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
 
