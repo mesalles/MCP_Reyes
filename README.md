@@ -50,15 +50,17 @@ uv run server.py
 ### Modo Remoto (HTTP/WebSocket) - Para Acceso de Red
 
 ```bash
-# Servidor en localhost
-python start_server.py --mode remote --host 127.0.0.1 --port 8000
+# Servidor en localhost (desarrollo)
+python start_server.py --mode remote --host 127.0.0.1 --port 8084
 
-# Servidor accesible desde la red
-python start_server.py --mode remote --host 0.0.0.0 --port 8000
+# Servidor accesible desde la red (para servidor de prueba 150.128.81.57)
+python start_server.py --mode remote --host 0.0.0.0 --port 8084
 
 # Con auto-reload para desarrollo
-python start_server.py --mode remote --host 127.0.0.1 --port 8000 --reload
+python start_server.py --mode remote --host 127.0.0.1 --port 8084 --reload
 ```
+
+> **💡 Nota para servidor de prueba**: Para ejecutar en el servidor de prueba (150.128.81.57), usa `--host 0.0.0.0` para permitir conexiones desde cualquier IP de la red.
 
 ## 📋 Configuración en Claude Desktop
 
@@ -80,13 +82,29 @@ Añade a tu configuración de Claude Desktop (`claude_desktop_config.json`):
 
 ### Para Modo Remoto (WebSocket)
 
+**Localhost (desarrollo local):**
+
 ```json
 {
   "mcpServers": {
     "mcp-uji-academic-remote": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://localhost:8000/ws/claude-desktop"],
-      "description": "UJI Academic Server - Remote Mode"
+      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://localhost:8084/ws/claude-desktop"],
+      "description": "UJI Academic Server - Remote Mode (localhost)"
+    }
+  }
+}
+```
+
+**Servidor de prueba (IP específica):**
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic-remote-test": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://150.128.81.57:8084/ws/claude-desktop"],
+      "description": "UJI Academic Server - Remote Mode (servidor de prueba)"
     }
   }
 }
@@ -94,12 +112,19 @@ Añade a tu configuración de Claude Desktop (`claude_desktop_config.json`):
 
 ## 🌐 Endpoints del Servidor Remoto
 
-Cuando ejecutas en modo remoto, el servidor expone:
+### Desarrollo Local (localhost)
 
-- 🏠 **Página principal**: `http://localhost:8000/`  
-- 💓 **Health check**: `http://localhost:8000/health`
-- 🛠️ **Lista de herramientas**: `http://localhost:8000/tools`
-- 🔌 **WebSocket MCP**: `ws://localhost:8000/ws/{client_id}`
+- 🏠 **Página principal**: `http://localhost:8084/`  
+- 💓 **Health check**: `http://localhost:8084/health`
+- 🛠️ **Lista de herramientas**: `http://localhost:8084/tools`
+- 🔌 **WebSocket MCP**: `ws://localhost:8084/ws/{client_id}`
+
+### Servidor de Prueba (150.128.81.57)
+
+- 🏠 **Página principal**: `http://150.128.81.57:8084/`  
+- 💓 **Health check**: `http://150.128.81.57:8084/health`
+- 🛠️ **Lista de herramientas**: `http://150.128.81.57:8084/tools`
+- 🔌 **WebSocket MCP**: `ws://150.128.81.57:8084/ws/{client_id}`
 
 ## 🛠️ Herramientas MCP Disponibles
 
@@ -149,12 +174,24 @@ python start_server.py --mode remote --reload
 
 ### Verificar Servidor Remoto
 
+**Desarrollo local:**
+
 ```bash
 # Health check
-curl http://localhost:8000/health
+curl http://localhost:8084/health
 
 # Lista de herramientas disponibles  
-curl http://localhost:8000/tools
+curl http://localhost:8084/tools
+```
+
+**Servidor de prueba:**
+
+```bash
+# Health check
+curl http://150.128.81.57:8084/health
+
+# Lista de herramientas disponibles  
+curl http://150.128.81.57:8084/tools
 ```
 
 ## 🔗 API Externa Utilizada
@@ -187,7 +224,7 @@ MCP_UJI_academic/
 
 ```bash
 # Verificar qué proceso usa el puerto
-lsof -i :8000
+lsof -i :8084
 
 # Usar otro puerto
 python start_server.py --mode remote --port 8001
@@ -198,6 +235,30 @@ python start_server.py --mode remote --port 8001
 - Verifica que el servidor remoto esté ejecutándose
 - Comprueba la URL del WebSocket en la configuración
 - Revisa los logs del servidor para errores
+
+### Conexión al servidor de prueba (150.128.81.57)
+
+Si no puedes conectarte al servidor de prueba:
+
+```bash
+# Verificar conectividad de red
+ping 150.128.81.57
+
+# Verificar que el puerto 8084 esté accesible
+telnet 150.128.81.57 8084
+# o con nc:
+nc -zv 150.128.81.57 8084
+```
+
+**Configuración de firewall** (en el servidor de prueba):
+
+```bash
+# Permitir tráfico en puerto 8084
+sudo ufw allow 8084/tcp
+
+# Verificar estado del firewall
+sudo ufw status
+```
 
 ### Problemas con uv
 

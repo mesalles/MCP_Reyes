@@ -7,7 +7,7 @@
     },
     "mcp-uji-academic-remote": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://localhost:8000/ws/claude-desktop"],
+      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://localhost:8084/ws/claude-desktop"],
       "description": "UJI Academic Server - Remote Mode (WebSocket)"
     }
   }

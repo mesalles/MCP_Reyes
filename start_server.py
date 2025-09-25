@@ -23,10 +23,10 @@ Examples:
   python start_server.py --mode local
   
   # Start remote server accessible from network
-  python start_server.py --mode remote --host 0.0.0.0 --port 8000
+  python start_server.py --mode remote --host 0.0.0.0 --port 8084
   
   # Start remote server on localhost only
-  python start_server.py --mode remote --host 127.0.0.1 --port 8000
+  python start_server.py --mode remote --host 127.0.0.1 --port 8084
         """
     )
     
@@ -46,8 +46,8 @@ Examples:
     parser.add_argument(
         "--port", 
         type=int, 
-        default=8000, 
-        help="Port number for remote mode (default: 8000)"
+        default=8084, 
+        help="Port number for remote mode (default: 8084)"
     )
     
     parser.add_argument(
