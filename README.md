@@ -40,7 +40,7 @@ sequenceDiagram
 2. **Ejecuta el servidor:** `uv run start_server.py --host 127.0.0.1 --port 8084`
 3. **Conecta un cliente MCP:** Usa la URL `http://127.0.0.1:8084/mcp` en tu cliente MCP preferido (ver sección "🤖 Conectar clientes MCP").
 
-Para Docker: `docker compose up --build` y conecta a `http://localhost:8084/mcp`.
+Para Docker: `docker compose up` y conecta a `http://localhost:8084/mcp`.
 
 ## 🧱 Requisitos previos
 
@@ -90,11 +90,11 @@ La API quedará disponible en `http://localhost:8084`. Puedes detener el contene
 ### Orquestación con Docker Compose
 
 ```bash
-# Levantar el servicio (construye la imagen si es necesario)
-docker compose up --build
+# Levantar el servicio
+docker compose up
 
 # Levantar en segundo plano
-docker compose up --build -d
+docker compose up -d
 
 # Detener y limpiar
 docker compose down
@@ -216,7 +216,7 @@ Añade a tu `claude_desktop_config.json`:
       "args": [
         "compose",
         "up",
-        "--build"
+        "-d"
       ],
       "cwd": "/ruta/completa/a/MCP_UJI_academic"
     }
@@ -224,9 +224,7 @@ Añade a tu `claude_desktop_config.json`:
 }
 ```
 
-- Ajusta `cwd` a la ruta real del proyecto.
-- El comando dentro de `args` debe ir en una sola línea; JSON no admite saltos manuales (`\`) dentro de strings.
-- Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
+Esto inicia el contenedor en segundo plano si no está corriendo. Si ya está corriendo, no hace nada.
 
 > `npx @modelcontextprotocol/inspector` es una herramienta de testing. VS Code y Claude necesitan configuraciones JSON propias.
 
