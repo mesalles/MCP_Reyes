@@ -10,6 +10,30 @@ Servidor HTTP del Model Context Protocol (MCP) que expone la información acadé
 - 🧰 Ocho herramientas MCP listas para usar y compatibles con MCP Inspector
 - 🛡️ Modelos Pydantic y manejo consistente de errores para clientes remotos
 
+## 🏗️ Arquitectura
+
+El servidor MCP UJI Academic actúa como intermediario entre clientes MCP compatibles y la API pública de la Universitat Jaume I, facilitando el acceso a datos académicos a través del protocolo JSON-RPC 2.0.
+
+```mermaid
+sequenceDiagram
+    participant Cliente as Cliente MCP<br/>(Claude Desktop, VS Code, etc.)
+    participant Servidor as Servidor MCP<br/>UJI Academic
+    participant API as API UJI
+
+    Cliente->>Servidor: Conectar a /mcp (HTTP)
+    Servidor-->>Cliente: Confirmación de conexión
+
+    Cliente->>Servidor: Llamada a herramienta<br/>(e.g., get_subjects)
+    activate Servidor
+    Servidor->>API: Consulta datos académicos<br/>(GET /api/subjects)
+    API-->>Servidor: Respuesta JSON con datos
+    Servidor-->>Cliente: Resultado de la herramienta
+    deactivate Servidor
+
+    Note over Cliente,Servidor: Comunicación vía JSON-RPC 2.0 sobre HTTP
+    Note over Servidor,API: Comunicación HTTP con caché en memoria
+```
+
 ## 🚀 Inicio rápido
 
 1. **Instala dependencias:** `git clone <repository-url> && cd MCP_UJI_academic && uv sync`
