@@ -39,6 +39,32 @@ uv run start_server.py --host 127.0.0.1 --port 8084 --reload
 
 > `start_server.py` es un lanzador que arranca `mcp_server.py` con los parámetros indicados. Si prefieres usar directamente Python, ejecuta `python start_server.py`.
 
+## 🐳 Ejecución con Docker
+
+### Construir y ejecutar la imagen manualmente
+
+```bash
+docker build -t mcp-uji-academic .
+docker run --rm -p 8084:8084 mcp-uji-academic
+```
+
+La API quedará disponible en `http://localhost:8084`. Puedes detener el contenedor con `Ctrl+C` o usando `docker stop` si lo ejecutas en segundo plano.
+
+### Orquestación con Docker Compose
+
+```bash
+# Levantar el servicio (construye la imagen si es necesario)
+docker compose up --build
+
+# Levantar en segundo plano
+docker compose up --build -d
+
+# Detener y limpiar
+docker compose down
+```
+
+El archivo `docker-compose.yml` expone el puerto 8084. Ajusta el mapeo si necesitas servirlo en otro puerto host (por ejemplo `- "9090:8084"`).
+
 ## 🌐 Endpoints HTTP principales
 
 | Método | Ruta       | Descripción                                                   |
@@ -115,17 +141,15 @@ Y cambia la URL a `http://127.0.0.1:8084/mcp`.
 
 ### Claude Desktop
 
-Claude Desktop **no** puede llamar a un servidor HTTP remoto por sí mismo: solo lanza comandos locales. Por eso necesitas que el servidor MCP esté disponible en tu máquina (directamente o a través de un túnel) **antes** de arrancar Claude.
+Claude Desktop **no** puede llamar a un servidor HTTP remoto por sí mismo: solo lanza comandos locales. Por eso necesitas que el servidor MCP esté disponible en tu máquina **antes** de arrancar Claude.
 
 1. **Decide cómo traer el servidor a tu máquina**
 
-    **Ejecución local:** clona el repo y arranca `uv run start_server.py --host 127.0.0.1 --port 8084` en una terminal independiente.
+   **Ejecución local:** clona el repo y arranca `uv run start_server.py --host 127.0.0.1 --port 8084` en una terminal independiente.
 
-    **Túnel SSH:** si el servidor vive en otra máquina, abre `ssh -L 8084:localhost:8084 usuario@IP_REMOTO` para redirigir el puerto 8084 hacia tu equipo. Mantén el túnel abierto mientras uses Claude.
+1. **Configura Claude para lanzar/verificar el servidor**
 
-2. **Configura Claude para lanzar/verificar el servidor**
-
-    Claude ejecutará un comando local cada vez que necesite el servidor MCP. Puedes usar `uv run start_server.py` (cuando trabajas con una copia local) o un script que establezca el túnel y compruebe que responde.
+   Claude ejecutará un comando local cada vez que necesite el servidor MCP. Puedes usar `uv run start_server.py` siempre que tengas el proyecto disponible en tu máquina.
 
 Como punto de partida, añade algo similar a tu `claude_desktop_config.json`:
 
@@ -148,25 +172,7 @@ Como punto de partida, añade algo similar a tu `claude_desktop_config.json`:
 }
 ```
 
-Si dependes de un túnel SSH, puedes hacer que Claude abra el túnel, espere a que responda el `/health` y mantenga la sesión mientras esté activo:
-
-```json
-{
-  "mcpServers": {
-    "mcp-uji-academic": {
-      "command": "bash",
-      "args": [
-        "-lc",
-        "trap 'kill $SSH_PID' EXIT; ssh -N -L 8084:localhost:8084 usuario@IP_REMOTO & SSH_PID=$!; sleep 2; curl --fail http://127.0.0.1:8084/health >/dev/null; wait $SSH_PID"
-      ]
-    }
-  }
-}
-```
-
 - Ajusta `cwd` a la ruta real del proyecto cuando uses la copia local.
-- En el ejemplo del túnel, reemplaza `usuario@IP_REMOTO`, ajusta puertos si lo necesitas y añade lógica de limpieza si piensas cerrar Claude manualmente.
-- Si la cuenta remota usa contraseña, el comando te pedirá la clave en la terminal que arranca Claude; instala una clave SSH o usa herramientas como `sshpass` (solo si tu política de seguridad lo permite) para automatizarlo.
 - El comando dentro de `args` debe ir en una sola línea; JSON no admite saltos manuales (`\`) dentro de strings.
 - Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
 

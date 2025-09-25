@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  mcp-uji-academic:
+    build: .
+    ports:
+      - "8084:8084"
+    restart: unless-stopped
