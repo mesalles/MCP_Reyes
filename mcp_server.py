@@ -604,7 +604,7 @@ def main():
     logger.info(f"Starting HTTP MCP UJI Academic Server on {args.host}:{args.port}")
     
     uvicorn.run(
-        "remote_server:app",
+        "mcp_server:app",
         host=args.host,
         port=args.port,
         reload=args.reload,

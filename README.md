@@ -1,17 +1,18 @@
 # MCP UJI Academic Server
 
-Servidor MCP (Model Context Protocol) completo que proporciona acceso a la información académica de la Universitat Jaume I (UJI). Soporta tanto modo local (stdio) como remoto (HTTP/WebSocket) para máxima flexibilidad de despliegue.
+Servidor MCP (Model Context Protocol) HTTP que proporciona acceso a la información académica de la Universitat Jaume I (UJI). Optimizado para acceso remoto a través de HTTP con compatibilidad completa con MCP Inspector.
 
 ## ✨ Características Principales
 
 - 🎓 **Acceso Completo a Datos Académicos**: Asignaturas, titulaciones, horarios y ubicaciones
 - 🌐 **Soporte Multiidioma**: Contenido en catalán, español e inglés  
-- 🔄 **Modo Dual**: Local (stdio) para Claude Desktop local y remoto (HTTP/WebSocket) para acceso de red
+- 🌍 **HTTP Puro**: Servidor HTTP optimizado para acceso remoto y compatibilidad máxima
 - ⚡ **Cache Inteligente**: Sistema de caché integrado para mejor rendimiento
 - 🔍 **Funcionalidad de Búsqueda**: Búsqueda avanzada en asignaturas, titulaciones y ubicaciones
 - 📅 **Gestión de Horarios**: Análisis y gestión de horarios en formato iCalendar
 - 🛡️ **Manejo Robusto de Errores**: Gestión de errores con mensajes descriptivos
 - 🔒 **Seguridad de Tipos**: Type hints completos y modelos Pydantic para validación
+- 🔧 **Compatible con MCP Inspector**: Funciona perfectamente con herramientas de desarrollo MCP
 
 ## 🔧 Instalación
 
@@ -37,118 +38,103 @@ Servidor MCP (Model Context Protocol) completo que proporciona acceso a la infor
 
 ## 🚀 Uso del Servidor
 
-### Modo Local (stdio) - Para Claude Desktop Local
-
-```bash
-# Opción 1: Usar el launcher
-python start_server.py --mode local
-
-# Opción 2: Directamente
-uv run server.py
-```
-
-### Modo Remoto (HTTP/WebSocket) - Para Acceso de Red
+### Servidor HTTP MCP
 
 ```bash
 # Servidor en localhost (desarrollo)
 python start_server.py --mode remote --host 127.0.0.1 --port 8084
 
-# Servidor accesible desde la red (para servidor de prueba 150.128.81.57)
+# Servidor accesible desde la red
 python start_server.py --mode remote --host 0.0.0.0 --port 8084
 
 # Con auto-reload para desarrollo
 python start_server.py --mode remote --host 127.0.0.1 --port 8084 --reload
+
+# Usando UV directamente
+uv run start_server.py --mode remote --host 0.0.0.0 --port 8084
 ```
 
-> **💡 Nota para servidor de prueba**: Para ejecutar en el servidor de prueba (150.128.81.57), usa `--host 0.0.0.0` para permitir conexiones desde cualquier IP de la red.
+> **💡 Nota**: El servidor solo funciona en modo remoto HTTP. Para acceso desde la red, usa `--host 0.0.0.0`.
 
-## 📋 Configuración en Claude Desktop
+## � Integración y Testing
 
-### Para Modo Local (stdio)
+### MCP Inspector (Recomendado)
 
-Añade a tu configuración de Claude Desktop (`claude_desktop_config.json`):
+Para probar y explorar el servidor de forma interactiva:
 
-```json
-{
-  "mcpServers": {
-    "mcp-uji-academic": {
-      "command": "uv",
-      "args": ["run", "/ruta/completa/al/proyecto/MCP_UJI_academic/server.py"],
-      "description": "UJI Academic Server - Local Mode"
-    }
-  }
-}
+1. **Instala el MCP Inspector**:
+   ```bash
+   npx @modelcontextprotocol/inspector
+   ```
+
+2. **Configura la conexión**:
+   - **Transport**: `Streamable HTTP`
+   - **URL**: `http://localhost:8084/mcp`
+   - **Method**: `POST`
+
+3. **Explora las herramientas**: El inspector te permitirá ver y probar todas las 8 herramientas disponibles
+
+### Test Manual con curl
+
+```bash
+# Verificar servidor activo
+curl -X GET http://localhost:8084/health
+
+# Listar herramientas disponibles
+curl -X GET http://localhost:8084/tools
+
+# Test de ping MCP
+curl -X POST http://localhost:8084/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "ping"}'
+
+# Listar herramientas MCP
+curl -X POST http://localhost:8084/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}'
 ```
 
-### Para Modo Remoto (WebSocket)
-
-**Localhost (desarrollo local):**
-
-```json
-{
-  "mcpServers": {
-    "mcp-uji-academic-remote": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://localhost:8084/ws/claude-desktop"],
-      "description": "UJI Academic Server - Remote Mode (localhost)"
-    }
-  }
-}
-```
-
-**Servidor de prueba (IP específica):**
-
-```json
-{
-  "mcpServers": {
-    "mcp-uji-academic-remote-test": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/client-websocket", "ws://150.128.81.57:8084/ws/claude-desktop"],
-      "description": "UJI Academic Server - Remote Mode (servidor de prueba)"
-    }
-  }
-}
-```
-
-## 🌐 Endpoints del Servidor Remoto
+## 🌐 Endpoints del Servidor HTTP
 
 ### Desarrollo Local (localhost)
 
-- 🏠 **Página principal**: `http://localhost:8084/`  
-- 💓 **Health check**: `http://localhost:8084/health`
-- 🛠️ **Lista de herramientas**: `http://localhost:8084/tools`
-- 🔌 **WebSocket MCP**: `ws://localhost:8084/ws/{client_id}`
+- 🏠 **Información del servidor**: `GET http://localhost:8084/`  
+- 💓 **Health check**: `GET http://localhost:8084/health`
+- 🛠️ **Lista de herramientas**: `GET http://localhost:8084/tools`
+- 🔌 **Endpoint MCP**: `POST http://localhost:8084/mcp`
 
-### Servidor de Prueba (150.128.81.57)
+### Servidor de Producción
 
-- 🏠 **Página principal**: `http://150.128.81.57:8084/`  
-- 💓 **Health check**: `http://150.128.81.57:8084/health`
-- 🛠️ **Lista de herramientas**: `http://150.128.81.57:8084/tools`
-- 🔌 **WebSocket MCP**: `ws://150.128.81.57:8084/ws/{client_id}`
+- 🏠 **Información del servidor**: `GET http://150.128.81.57:8084/`  
+- 💓 **Health check**: `GET http://150.128.81.57:8084/health`
+- 🛠️ **Lista de herramientas**: `GET http://150.128.81.57:8084/tools`
+- 🔌 **Endpoint MCP**: `POST http://150.128.81.57:8084/mcp`
 
-## 🛠️ Herramientas MCP Disponibles
+## �️ Herramientas MCP Disponibles (8 herramientas)
 
-### Asignaturas
+El servidor HTTP MCP proporciona herramientas optimizadas para acceso académico UJI:
 
-- **`get_subjects`**: Obtener lista paginada de asignaturas
-- **`search_subjects`**: Buscar asignaturas por nombre o ID
-- **`get_subject_details`**: Detalles completos de una asignatura
+### 📚 Asignaturas (2 herramientas)
 
-### Titulaciones  
+- **`get_subjects`**: Lista paginada con filtros y soporte multiidioma
+- **`search_subjects`**: Búsqueda inteligente por nombre o código
 
-- **`get_degrees`**: Obtener lista de titulaciones
-- **`search_degrees`**: Buscar titulaciones por nombre
-- **`get_degree_details`**: Detalles de una titulación específica
+### 🎓 Titulaciones (2 herramientas)
 
-### Ubicaciones
+- **`get_degrees`**: Catálogo completo de grados y másteres
+- **`search_degrees`**: Búsqueda de titulaciones por nombre
 
-- **`get_locations`**: Obtener ubicaciones universitarias
-- **`search_locations`**: Buscar ubicaciones por nombre
+### 🏢 Ubicaciones (2 herramientas)
 
-### Horarios
+- **`get_locations`**: Directorio de edificios, aulas y laboratorios
+- **`search_locations`**: Búsqueda de espacios universitarios
 
-- **`get_class_schedule`**: Horarios de clases por titulación y año
-- **`get_exam_schedule`**: Horarios de exámenes por titulación y año
+### 📅 Horarios (2 herramientas)
+
+- **`get_class_schedule`**: Calendarios de clases por titulación/año
+- **`get_exam_schedule`**: Calendarios de exámenes por titulación/año
+
+> **🌐 Todas las herramientas**: Soporte CA/ES/EN y respuestas JSON estructuradas
 
 ## 📚 Recursos MCP
 
@@ -156,20 +142,33 @@ Añade a tu configuración de Claude Desktop (`claude_desktop_config.json`):
 
 ## 🧪 Desarrollo y Testing
 
-### Ejecutar Tests
+### Tests de Integración
 
 ```bash
-# Tests de integración
+# Test completo del sistema
 uv run python integration_test.py
 
-# Test específico del servidor
-uv run python test_server.py
+# Test específico de herramientas
+python test_websocket.py  # Ahora solo prueba HTTP
 ```
 
 ### Desarrollo con Auto-reload
 
 ```bash
-python start_server.py --mode remote --reload
+# Servidor con recarga automática
+python start_server.py --mode remote --host 127.0.0.1 --port 8084 --reload
+```
+
+### Verificación Rápida
+
+```bash
+# Verificar servidor activo
+curl http://localhost:8084/health
+
+# Test de conectividad MCP
+curl -X POST http://localhost:8084/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "ping"}'
 ```
 
 ### Verificar Servidor Remoto
@@ -206,14 +205,11 @@ Este servidor utiliza la API REST oficial de UJI:
 
 ```
 MCP_UJI_academic/
-├── server.py              # Servidor MCP principal (modo local)
-├── remote_server.py       # Servidor HTTP/WebSocket (modo remoto)  
-├── start_server.py        # Launcher para ambos modos
+├── mcp_server.py          # Servidor HTTP MCP principal
+├── start_server.py        # Launcher del servidor HTTP
 ├── api_client.py          # Cliente API de UJI
 ├── models.py              # Modelos Pydantic
 ├── integration_test.py    # Tests de integración
-├── test_server.py         # Tests del servidor
-├── claude_desktop_config.json  # Ejemplo configuración Claude
 ├── pyproject.toml         # Configuración del proyecto
 └── README.md              # Esta documentación
 ```
@@ -296,5 +292,5 @@ Si encuentras algún problema o tienes preguntas:
 
 1. Revisa la sección de solución de problemas
 2. Ejecuta los tests de integración
-3. Verifica la configuración de Claude Desktop
+3. Prueba con MCP Inspector
 4. Crea un issue en el repositorio

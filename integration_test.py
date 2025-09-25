@@ -1,36 +1,70 @@
 #!/usr/bin/env python3
 """
-Integration test to verify MCP server is working correctly
+Integration test to verify HTTP MCP server is working correctly
 """
 
 import json
 import subprocess
-import asyncio
+import requests
 import time
+import os
 
 def test_server_startup():
-    """Test that the server starts without errors"""
-    print("Testing MCP UJI Academic Server startup...")
+    """Test that the HTTP MCP server starts without errors"""
+    print("Testing HTTP MCP UJI Academic Server startup...")
     
     try:
-        # Start the server process
+        # Start the HTTP server process
         process = subprocess.Popen(
-            ["uv", "run", "main.py"],
-            cwd="/home/al419150/investigation_work/lsi_work/semanticbots_solutai/MCP_UJI_academic",
+            ["uv", "run", "start_server.py", "--host", "127.0.0.1", "--port", "8086"],
+            cwd=os.path.dirname(os.path.abspath(__file__)),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
         )
         
-        # Let it run for a few seconds
-        time.sleep(3)
+        # Let it run for a few seconds to start up
+        time.sleep(5)
         
         # Check if process is still running (no immediate crash)
         if process.poll() is None:
-            print("✓ Server started successfully and is running")
-            process.terminate()
-            process.wait(timeout=5)
-            return True
+            print("✓ HTTP Server started successfully and is running")
+            
+            # Test HTTP endpoints
+            try:
+                # Test health endpoint
+                health_response = requests.get("http://127.0.0.1:8086/health", timeout=5)
+                if health_response.status_code == 200:
+                    print("✓ Health endpoint responding")
+                else:
+                    print(f"✗ Health endpoint returned {health_response.status_code}")
+                    return False
+                
+                # Test MCP ping
+                ping_data = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "ping"
+                }
+                ping_response = requests.post(
+                    "http://127.0.0.1:8086/mcp",
+                    json=ping_data,
+                    headers={"Content-Type": "application/json"},
+                    timeout=5
+                )
+                if ping_response.status_code == 200:
+                    print("✓ MCP ping responding")
+                    
+                    process.terminate()
+                    process.wait(timeout=5)
+                    return True
+                else:
+                    print(f"✗ MCP ping returned {ping_response.status_code}")
+                    return False
+                    
+            except requests.RequestException as e:
+                print(f"✗ HTTP request failed: {e}")
+                return False
         else:
             stdout, stderr = process.communicate()
             print("✗ Server crashed on startup")
@@ -41,6 +75,11 @@ def test_server_startup():
     except Exception as e:
         print(f"✗ Failed to test server startup: {e}")
         return False
+    finally:
+        # Clean up
+        if 'process' in locals() and process.poll() is None:
+            process.terminate()
+            process.wait()
 
 def test_components():
     """Test that all components work correctly"""
@@ -49,7 +88,6 @@ def test_components():
     try:
         # Test that we can import all modules
         from api_client import create_uji_client
-        from server import MCPUJIServer
         from models import Subject, Degree, Location
         
         print("✓ All modules imported successfully")
@@ -58,11 +96,6 @@ def test_components():
         client = create_uji_client()
         client.close()
         print("✓ API client created and closed successfully")
-        
-        # Test server creation
-        server = MCPUJIServer()
-        server.cleanup()
-        print("✓ MCP server created and cleaned up successfully")
         
         return True
         
