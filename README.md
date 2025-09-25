@@ -120,6 +120,29 @@ Claude Desktop solo ejecuta procesos locales. Para conectarlo:
 1. **Copia local**: clona el repositorio y ejecuta `uv run start_server.py --host 127.0.0.1 --port 8084` antes de iniciar Claude.
 2. **Túnel SSH**: abre un túnel `ssh -L 8084:localhost:8084 usuario@IP` y define en `claude_desktop_config.json` un comando que establezca el túnel antes de lanzar el cliente MCP.
 
+Una vez tengas listo el servidor (pasos 1 y 2), añade algo similar a tu `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic": {
+      "command": "uv",
+      "args": [
+        "run",
+        "start_server.py",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8084"
+      ],
+      "cwd": "/ruta/completa/a/MCP_UJI_academic"
+    }
+  }
+}
+```
+
+> Ajusta la ruta de `cwd` a la ubicación real del proyecto en tu máquina.
+
 > `npx @modelcontextprotocol/inspector` es una herramienta de testing. VS Code y Claude necesitan configuraciones JSON propias.
 
 ## 🧪 Pruebas y verificación
