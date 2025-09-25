@@ -6,7 +6,12 @@ Servidor MCP (Model Context Protocol) HTTP que proporciona acceso a la informaci
 
 - 🎓 **Acceso Completo a Datos Académicos**: Asignaturas, titulaciones, horarios y ubicaciones
 - 🌐 **Soporte Multiidioma**: Contenido en catalán, español e inglés  
-- 🌍 **HTTP Puro**: Servidor HTTP optimizado para acceso remoto y compatibilidad máxima
+- 🌍 **HTTP Puro**: Servidor HTTP op### Error de conexión HTTP
+
+- Verifica que el servidor remoto esté ejecutándose
+- Comprueba la URL HTTP en la configuración (`http://IP:8084/mcp`)
+- Revisa los logs del servidor para errores
+- Confirma que el puerto 8084 esté abiertoado para acceso remoto y compatibilidad máxima
 - ⚡ **Cache Inteligente**: Sistema de caché integrado para mejor rendimiento
 - 🔍 **Funcionalidad de Búsqueda**: Búsqueda avanzada en asignaturas, titulaciones y ubicaciones
 - 📅 **Gestión de Horarios**: Análisis y gestión de horarios en formato iCalendar
@@ -40,6 +45,20 @@ Servidor MCP (Model Context Protocol) HTTP que proporciona acceso a la informaci
 
 > **📡 Servidor Remoto**: El servidor MCP se ejecuta en una máquina remota (ej: `150.128.81.57:8084`), no en tu máquina local. Las configuraciones están optimizadas para este escenario.
 
+### 🤔 ¿NPX para Claude Desktop o VS Code?
+
+**❌ NO**: `npx @modelcontextprotocol/inspector` es **SOLO** una herramienta de testing y desarrollo, no conecta Claude Desktop o VS Code al servidor.
+
+**✅ SÍ**: Claude Desktop y VS Code necesitan sus propias configuraciones específicas (JSON) para conectarse al servidor MCP.
+
+**Diferencias:**
+
+| Cliente | Método de Conexión | Configuración |
+|---------|-------------------|---------------|
+| **MCP Inspector** | `npx` (temporal) | Interface web para testing |
+| **Claude Desktop** | JSON config | Archivo `claude_desktop_config.json` |
+| **VS Code** | JSON config | Settings de extensión MCP |
+
 ### Claude Desktop
 
 Para usar el servidor remoto con Claude Desktop, agrega la siguiente configuración a tu archivo `claude_desktop_config.json`:
@@ -50,28 +69,27 @@ Para usar el servidor remoto con Claude Desktop, agrega la siguiente configuraci
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Linux**: `~/.config/claude/claude_desktop_config.json`
 
-**Configuración para Servidor Remoto (Recomendado):**
+**📋 Cómo conectar Claude Desktop al servidor MCP:**
 
-> **⚠️ Nota**: Claude Desktop no soporta directamente servidores HTTP remotos, por lo que necesitas usar un proxy local o ejecutar el servidor localmente.
+> **⚠️ Limitación**: Claude Desktop **NO puede conectarse directamente** a servidores HTTP remotos. Solo ejecuta comandos locales.
 
-**Opción A: Proxy SSH (Recomendado)**
+#### Opción A: Túnel SSH + Comando Local (Recomendado)
 
 ```json
 {
   "mcpServers": {
     "mcp-uji-academic": {
-      "command": "ssh",
+      "command": "bash",
       "args": [
-        "-L", "8084:localhost:8084",
-        "usuario@IP_SERVIDOR_REMOTO",
-        "cd /ruta/en/servidor/remoto/MCP_UJI_academic && uv run start_server.py --host 127.0.0.1 --port 8084"
+        "-c",
+        "ssh -L 8084:localhost:8084 usuario@150.128.81.57 -N & sleep 3 && curl -s http://127.0.0.1:8084/mcp -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"ping\"}' > /dev/null && exec python3 -c \"import json,urllib.request; exec(open('/dev/stdin').read())\""
       ]
     }
   }
 }
 ```
 
-**Opción B: Copia Local del Proyecto**
+#### Opción B: Copia Local Completa (Más Simple)
 
 ```json
 {
@@ -79,7 +97,25 @@ Para usar el servidor remoto con Claude Desktop, agrega la siguiente configuraci
     "mcp-uji-academic": {
       "command": "uv",
       "args": ["run", "start_server.py", "--host", "127.0.0.1", "--port", "8084"],
-      "cwd": "/ruta/local/al/proyecto/MCP_UJI_academic"
+      "cwd": "/ruta/local/completa/al/proyecto/MCP_UJI_academic"
+    }
+  }
+}
+```
+
+#### Opción C: Proxy HTTP Local (Avanzado)
+
+Si tienes un proxy HTTP local que redirija a tu servidor remoto:
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic": {
+      "command": "python3",
+      "args": ["-m", "http.server", "--bind", "127.0.0.1", "8084"],
+      "env": {
+        "PROXY_TARGET": "http://150.128.81.57:8084"
+      }
     }
   }
 }
@@ -154,44 +190,150 @@ Para cualquier cliente MCP que soporte HTTP, conecta al servidor remoto:
 }
 ```
 
+### 📋 Resumen: NPX vs Configuración de Clientes
+
+**Para aclarar la confusión:**
+
+| Herramienta | ¿Usa NPX? | Propósito | Configuración |
+|-------------|-----------|-----------|---------------|
+| **MCP Inspector** | ✅ `npx @modelcontextprotocol/inspector` | Testing y desarrollo | Interface web temporal |
+| **Claude Desktop** | ❌ NO usa NPX | Cliente productivo | JSON en archivo config |
+| **VS Code** | ❌ NO usa NPX | Cliente productivo | JSON en settings |
+
+**Respuesta directa:**
+- **NPX**: Solo para testing con MCP Inspector
+- **Claude Desktop**: Requiere configuración JSON (no NPX)  
+- **VS Code**: Requiere configuración JSON (no NPX)
+- **Servidor MCP**: Se conecta a TODOS mediante HTTP, pero cada cliente tiene su propio método
+
 ## 🚀 Uso del Servidor
 
 ### Servidor HTTP MCP
 
 ```bash
 # Servidor en localhost (desarrollo)
-python start_server.py --mode remote --host 127.0.0.1 --port 8084
+uv run start_server.py --host 127.0.0.1 --port 8084
 
 # Servidor accesible desde la red
-python start_server.py --mode remote --host 0.0.0.0 --port 8084
+uv run start_server.py --host 0.0.0.0 --port 8084
 
 # Con auto-reload para desarrollo
-python start_server.py --mode remote --host 127.0.0.1 --port 8084 --reload
+uv run start_server.py --host 127.0.0.1 --port 8084 --reload
 
-# Usando UV directamente
-uv run start_server.py --mode remote --host 0.0.0.0 --port 8084
+# Usando Python directamente (alternativo)
+python start_server.py --host 0.0.0.0 --port 8084
 ```
 
-> **💡 Nota**: El servidor solo funciona en modo remoto HTTP. Para acceso desde la red, usa `--host 0.0.0.0`.
+> **💡 Nota**: El servidor es HTTP por defecto. Para acceso desde la red, usa `--host 0.0.0.0`.
 
 ## � Integración y Testing
 
+### ¿Cuándo conectar con NPX?
+
+**MCP Inspector con `npx` es ideal para:**
+
+🔧 **Desarrollo y Testing**
+- Validar que el servidor remoto está funcionando
+- Probar nuevas funcionalidades sin configurar clientes
+- Debug de problemas de conectividad
+
+🚀 **Exploración Rápida**
+- Ver todas las herramientas disponibles (8 herramientas UJI)
+- Ejecutar llamadas MCP interactivamente
+- Entender la estructura de respuestas JSON
+
+⚡ **Sin Instalación**
+- No requiere configuración compleja de clientes
+- Funciona desde cualquier máquina con Node.js
+- Ideal para demos y presentaciones
+
 ### MCP Inspector (Recomendado)
 
-Para probar y explorar el servidor de forma interactiva:
+Para probar y explorar el servidor de forma interactiva usando `npx`:
 
-1. **Instala el MCP Inspector**:
+#### Cuándo usar MCP Inspector con npx:
+
+- ✅ **Siempre disponible**: No requiere instalación local
+- ✅ **Testing rápido**: Ideal para pruebas y desarrollo
+- ✅ **Exploración interactiva**: Ver todas las herramientas y probar llamadas
+- ✅ **Validación de endpoints**: Confirmar que el servidor remoto funciona
+
+#### Conexión al Servidor Remoto:
+
+1. **Ejecuta MCP Inspector**:
    ```bash
    npx @modelcontextprotocol/inspector
    ```
 
-2. **Configura la conexión**:
+2. **Configura la conexión en la interfaz web**:
    - **Transport**: `Streamable HTTP`
-   - **URL Remota**: `http://150.128.81.57:8084/mcp`
-   - **URL Local**: `http://localhost:8084/mcp` (si usas túnel SSH)
+   - **URL**: `http://150.128.81.57:8084/mcp`
    - **Method**: `POST`
 
-3. **Explora las herramientas**: El inspector te permitirá ver y probar todas las 8 herramientas disponibles
+3. **Conecta y explora**:
+   - El inspector se abrirá en tu navegador (normalmente `http://localhost:3000`)
+   - Podrás ver las 8 herramientas disponibles
+   - Probar llamadas MCP en tiempo real
+
+#### Conexión con Túnel SSH (Alternativo):
+
+Si prefieres usar un túnel SSH:
+
+1. **Establece el túnel**:
+   ```bash
+   ssh -L 8084:localhost:8084 usuario@150.128.81.57
+   ```
+
+2. **Ejecuta MCP Inspector**:
+   ```bash
+   npx @modelcontextprotocol/inspector
+   ```
+
+3. **Configura con URL local**:
+   - **URL**: `http://localhost:8084/mcp`
+   - **Transport**: `Streamable HTTP`
+   - **Method**: `POST`
+
+> **🚀 Tip**: MCP Inspector es la forma más rápida de validar que tu servidor remoto está funcionando correctamente y explorar todas las herramientas disponibles.
+
+### Ejemplo Práctico: Conexión con NPX
+
+**Escenario 1: Conexión Directa al Servidor Remoto**
+
+```bash
+# 1. Ejecuta MCP Inspector
+npx @modelcontextprotocol/inspector
+
+# 2. Abre el navegador en http://localhost:3000
+# 3. Configura la conexión:
+#    - Transport: Streamable HTTP
+#    - URL: http://150.128.81.57:8084/mcp
+#    - Method: POST
+# 4. Haz clic en "Connect"
+# 5. Explora las 8 herramientas UJI disponibles
+```
+
+**Escenario 2: Verificación Rápida de Servidor**
+
+```bash
+# Antes de conectar clientes, verifica que el servidor responde:
+curl http://150.128.81.57:8084/health
+
+# Si responde {"status": "ok"}, entonces puedes usar:
+npx @modelcontextprotocol/inspector
+# Y conectar a http://150.128.81.57:8084/mcp
+```
+
+**Escenario 3: Desarrollo Local con Túnel**
+
+```bash
+# Terminal 1: Establece túnel SSH
+ssh -L 8084:localhost:8084 usuario@150.128.81.57
+
+# Terminal 2: Ejecuta inspector
+npx @modelcontextprotocol/inspector
+# Conecta a http://localhost:8084/mcp
+```
 
 ### Test Manual con curl
 
@@ -267,15 +409,15 @@ El servidor HTTP MCP proporciona herramientas optimizadas para acceso académico
 # Test completo del sistema
 uv run python integration_test.py
 
-# Test específico de herramientas
-python test_websocket.py  # Ahora solo prueba HTTP
+# Test específico de herramientas HTTP
+# (test_websocket.py fue eliminado tras simplificación)
 ```
 
 ### Desarrollo con Auto-reload
 
 ```bash
 # Servidor con recarga automática
-python start_server.py --mode remote --host 127.0.0.1 --port 8084 --reload
+uv run start_server.py --host 127.0.0.1 --port 8084 --reload
 ```
 
 ### Verificación Rápida
@@ -342,7 +484,7 @@ MCP_UJI_academic/
 lsof -i :8084
 
 # Usar otro puerto
-python start_server.py --mode remote --port 8001
+uv run start_server.py --port 8001
 ```
 
 ### Error de conexión WebSocket
@@ -384,8 +526,8 @@ uv sync --reinstall
 
 ## 🚦 Estado del Proyecto
 
-- ✅ Servidor local (stdio) funcional
-- ✅ Servidor remoto (HTTP/WebSocket) funcional  
+- ✅ Servidor HTTP MCP funcional
+- ✅ Compatible con MCP Inspector  
 - ✅ 8 herramientas MCP implementadas
 - ✅ Tests de integración completos
 - ✅ Documentación completa
