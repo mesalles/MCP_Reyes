@@ -157,10 +157,7 @@ Si dependes de un túnel SSH, puedes hacer que Claude abra el túnel, espere a q
       "command": "bash",
       "args": [
         "-lc",
-        "ssh -N -L 8084:localhost:8084 usuario@IP_REMOTO & SSH_PID=$!; \\
-         sleep 2; \\
-         curl --fail http://127.0.0.1:8084/health >/dev/null; \\
-         wait $SSH_PID"
+        "trap 'kill $SSH_PID' EXIT; ssh -N -L 8084:localhost:8084 usuario@IP_REMOTO & SSH_PID=$!; sleep 2; curl --fail http://127.0.0.1:8084/health >/dev/null; wait $SSH_PID"
       ]
     }
   }
@@ -169,6 +166,8 @@ Si dependes de un túnel SSH, puedes hacer que Claude abra el túnel, espere a q
 
 - Ajusta `cwd` a la ruta real del proyecto cuando uses la copia local.
 - En el ejemplo del túnel, reemplaza `usuario@IP_REMOTO`, ajusta puertos si lo necesitas y añade lógica de limpieza si piensas cerrar Claude manualmente.
+- Si la cuenta remota usa contraseña, el comando te pedirá la clave en la terminal que arranca Claude; instala una clave SSH o usa herramientas como `sshpass` (solo si tu política de seguridad lo permite) para automatizarlo.
+- El comando dentro de `args` debe ir en una sola línea; JSON no admite saltos manuales (`\`) dentro de strings.
 - Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
 
 > `npx @modelcontextprotocol/inspector` es una herramienta de testing. VS Code y Claude necesitan configuraciones JSON propias.
