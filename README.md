@@ -36,6 +36,124 @@ Servidor MCP (Model Context Protocol) HTTP que proporciona acceso a la informaci
    uv sync
    ```
 
+## ⚙️ Configuración de Clientes MCP
+
+> **📡 Servidor Remoto**: El servidor MCP se ejecuta en una máquina remota (ej: `150.128.81.57:8084`), no en tu máquina local. Las configuraciones están optimizadas para este escenario.
+
+### Claude Desktop
+
+Para usar el servidor remoto con Claude Desktop, agrega la siguiente configuración a tu archivo `claude_desktop_config.json`:
+
+**Ubicación del archivo de configuración:**
+
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux**: `~/.config/claude/claude_desktop_config.json`
+
+**Configuración para Servidor Remoto (Recomendado):**
+
+> **⚠️ Nota**: Claude Desktop no soporta directamente servidores HTTP remotos, por lo que necesitas usar un proxy local o ejecutar el servidor localmente.
+
+**Opción A: Proxy SSH (Recomendado)**
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic": {
+      "command": "ssh",
+      "args": [
+        "-L", "8084:localhost:8084",
+        "usuario@IP_SERVIDOR_REMOTO",
+        "cd /ruta/en/servidor/remoto/MCP_UJI_academic && uv run start_server.py --host 127.0.0.1 --port 8084"
+      ]
+    }
+  }
+}
+```
+
+**Opción B: Copia Local del Proyecto**
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic": {
+      "command": "uv",
+      "args": ["run", "start_server.py", "--host", "127.0.0.1", "--port", "8084"],
+      "cwd": "/ruta/local/al/proyecto/MCP_UJI_academic"
+    }
+  }
+}
+```
+
+> **⚠️ Importante**: 
+> - Cambia `IP_SERVIDOR_REMOTO` por la IP real del servidor
+> - Cambia `usuario` por tu usuario en el servidor remoto
+> - Asegúrate de tener acceso SSH al servidor remoto
+
+### Visual Studio Code
+
+Para usar el servidor remoto con VS Code y extensiones MCP:
+
+#### Servidor HTTP Remoto (Recomendado)
+
+```json
+{
+  "mcp.servers": {
+    "mcp-uji-academic": {
+      "transport": "http",
+      "url": "http://IP_SERVIDOR_REMOTO:8084/mcp"
+    }
+  }
+}
+```
+
+> **⚠️ Importante**: Cambia `IP_SERVIDOR_REMOTO` por la IP real del servidor (ej: `150.128.81.57`)
+
+#### Túnel SSH (Alternativo)
+
+Si prefieres usar un túnel SSH:
+
+1. **Establece el túnel:**
+   ```bash
+   ssh -L 8084:localhost:8084 usuario@IP_SERVIDOR_REMOTO
+   ```
+
+2. **Configuración VS Code:**
+   ```json
+   {
+     "mcp.servers": {
+       "mcp-uji-academic": {
+         "transport": "http",
+         "url": "http://127.0.0.1:8084/mcp"
+       }
+     }
+   }
+   ```
+
+### Otras Aplicaciones MCP
+
+Para cualquier cliente MCP que soporte HTTP, conecta al servidor remoto:
+
+- **Endpoint MCP Remoto**: `http://IP_SERVIDOR_REMOTO:8084/mcp`
+- **Endpoint Desarrollo**: `http://150.128.81.57:8084/mcp`
+- **Método**: `POST`
+- **Headers**: `Content-Type: application/json`
+- **Protocolo**: JSON-RPC 2.0
+
+**Ejemplo de configuración genérica:**
+
+```json
+{
+  "servers": {
+    "uji-academic": {
+      "transport": "http",
+      "endpoint": "http://150.128.81.57:8084/mcp",
+      "timeout": 30000
+    }
+  }
+}
+```
+
 ## 🚀 Uso del Servidor
 
 ### Servidor HTTP MCP
@@ -69,7 +187,8 @@ Para probar y explorar el servidor de forma interactiva:
 
 2. **Configura la conexión**:
    - **Transport**: `Streamable HTTP`
-   - **URL**: `http://localhost:8084/mcp`
+   - **URL Remota**: `http://150.128.81.57:8084/mcp`
+   - **URL Local**: `http://localhost:8084/mcp` (si usas túnel SSH)
    - **Method**: `POST`
 
 3. **Explora las herramientas**: El inspector te permitirá ver y probar todas las 8 herramientas disponibles
