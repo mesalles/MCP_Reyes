@@ -181,9 +181,10 @@ Y cambia la URL a `http://127.0.0.1:8084/mcp`.
 
 ### Claude Desktop
 
+### Claude Desktop
+
 Claude Desktop **no** puede llamar a un servidor HTTP remoto por sí mismo: solo lanza comandos locales. Por eso necesitas que el servidor MCP esté disponible en tu máquina **antes** de arrancar Claude.
 
-**Ejecución local con uv:**
 Añade a tu `claude_desktop_config.json`:
 
 ```json
@@ -205,26 +206,9 @@ Añade a tu `claude_desktop_config.json`:
 }
 ```
 
-**Ejecución con Docker:**
-Añade a tu `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "mcp-uji-academic": {
-      "command": "docker",
-      "args": [
-        "compose",
-        "up",
-        "-d"
-      ],
-      "cwd": "/ruta/completa/a/MCP_UJI_academic"
-    }
-  }
-}
-```
-
-Esto inicia el contenedor en segundo plano si no está corriendo. Si ya está corriendo, no hace nada.
+- Ajusta `cwd` a la ruta real del proyecto.
+- El comando dentro de `args` debe ir en una sola línea; JSON no admite saltos manuales (`\`) dentro de strings.
+- Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
 
 > `npx @modelcontextprotocol/inspector` es una herramienta de testing. VS Code y Claude necesitan configuraciones JSON propias.
 
