@@ -10,11 +10,20 @@ Servidor HTTP del Model Context Protocol (MCP) que expone la información acadé
 - 🧰 Ocho herramientas MCP listas para usar y compatibles con MCP Inspector
 - 🛡️ Modelos Pydantic y manejo consistente de errores para clientes remotos
 
+## 🚀 Inicio rápido
+
+1. **Instala dependencias:** `git clone <repository-url> && cd MCP_UJI_academic && uv sync`
+2. **Ejecuta el servidor:** `uv run start_server.py --host 127.0.0.1 --port 8084`
+3. **Conecta un cliente MCP:** Usa la URL `http://127.0.0.1:8084/mcp` en tu cliente MCP preferido (ver sección "🤖 Conectar clientes MCP").
+
+Para Docker: `docker compose up --build` y conecta a `http://localhost:8084/mcp`.
+
 ## 🧱 Requisitos previos
 
 - Python 3.12 o superior
 - [uv](https://docs.astral.sh/uv/) instalado como gestor de dependencias
 - Acceso a internet para consultar la API pública de la UJI
+- (Opcional) Docker y Docker Compose para ejecución contenerizada
 
 ## 🚀 Instalación y configuración
 
@@ -25,6 +34,8 @@ uv sync
 ```
 
 ## ▶️ Ejecución del servidor
+
+> **Nota:** El servidor debe estar corriendo antes de conectar cualquier cliente MCP. Mantén la terminal abierta o ejecuta en segundo plano.
 
 ```bash
 # Desarrollo local
@@ -40,6 +51,8 @@ uv run start_server.py --host 127.0.0.1 --port 8084 --reload
 > `start_server.py` es un lanzador que arranca `mcp_server.py` con los parámetros indicados. Si prefieres usar directamente Python, ejecuta `python start_server.py`.
 
 ## 🐳 Ejecución con Docker
+
+> **Nota:** Asegúrate de que el contenedor esté corriendo antes de conectar clientes MCP. El servidor estará disponible en `http://localhost:8084`.
 
 ### Construir y ejecutar la imagen manualmente
 
@@ -99,6 +112,8 @@ Todas las herramientas devuelven JSON estructurado y, cuando procede, informaci�
 
 ## 🤖 Conectar clientes MCP
 
+> **Importante:** El servidor MCP debe estar corriendo (localmente o en Docker) antes de conectar cualquier cliente. Verifica con `curl http://127.0.0.1:8084/health` o `curl http://localhost:8084/health` para Docker.
+
 ### Recomendaciones generales
 
 - El endpoint MCP habla JSON-RPC 2.0 sobre HTTP; cualquier cliente compatible puede usarlo.
@@ -144,15 +159,8 @@ Y cambia la URL a `http://127.0.0.1:8084/mcp`.
 
 Claude Desktop **no** puede llamar a un servidor HTTP remoto por sí mismo: solo lanza comandos locales. Por eso necesitas que el servidor MCP esté disponible en tu máquina **antes** de arrancar Claude.
 
-1. **Decide cómo traer el servidor a tu máquina**
-
-   **Ejecución local:** clona el repo y arranca `uv run start_server.py --host 127.0.0.1 --port 8084` en una terminal independiente.
-
-1. **Configura Claude para lanzar/verificar el servidor**
-
-   Claude ejecutará un comando local cada vez que necesite el servidor MCP. Puedes usar `uv run start_server.py` siempre que tengas el proyecto disponible en tu máquina.
-
-Como punto de partida, añade algo similar a tu `claude_desktop_config.json`:
+**Ejecución local con uv:**
+Añade a tu `claude_desktop_config.json`:
 
 ```json
 {
@@ -173,7 +181,8 @@ Como punto de partida, añade algo similar a tu `claude_desktop_config.json`:
 }
 ```
 
-Si prefieres usar Docker, configura el comando para lanzar el contenedor:
+**Ejecución con Docker:**
+Añade a tu `claude_desktop_config.json`:
 
 ```json
 {
@@ -191,7 +200,7 @@ Si prefieres usar Docker, configura el comando para lanzar el contenedor:
 }
 ```
 
-- Ajusta `cwd` a la ruta real del proyecto cuando uses la copia local o Docker.
+- Ajusta `cwd` a la ruta real del proyecto.
 - El comando dentro de `args` debe ir en una sola línea; JSON no admite saltos manuales (`\`) dentro de strings.
 - Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
 
@@ -201,6 +210,7 @@ Si prefieres usar Docker, configura el comando para lanzar el contenedor:
 
 ```bash
 # Test de integración (arranca el servidor temporalmente y verifica endpoints)
+# Asegúrate de que el puerto 8084 esté libre antes de ejecutar
 uv run python integration_test.py
 
 # Checks manuales rápidos
@@ -227,10 +237,12 @@ MCP_UJI_academic/
 
 | Problema                                | Cómo solucionarlo |
 |-----------------------------------------|--------------------|
-| Puerto 8084 ocupado                     | `lsof -i :8084` para identificar el proceso o arranca con `--port 8001`. |
-| Timeout o conexión rechazada            | Comprueba firewall/túneles y ejecuta `curl http://<host>:8084/health`. |
-| Dependencias inconsistentes con uv      | Ejecuta `uv sync --reinstall`. |
-| Errores de la API pública de la UJI     | Revisa los logs del servidor y reintenta; la API puede ser lenta o intermitente. |
+| Puerto 8084 ocupado                     | `lsof -i :8084` para identificar el proceso. Mata el proceso o usa `--port 8001` para cambiar el puerto. |
+| Timeout o conexión rechazada            | Verifica que el servidor esté corriendo con `curl http://<host>:8084/health`. Comprueba firewall o túnel SSH. |
+| Dependencias inconsistentes con uv      | Ejecuta `uv sync --reinstall` para reinstalar dependencias. |
+| Errores de la API pública de la UJI     | Revisa los logs del servidor; la API puede ser lenta o intermitente. Reintenta más tarde. |
+| Docker: contenedor no responde          | Asegúrate de que el puerto esté mapeado correctamente (`-p 8084:8084`). Usa `docker logs <container_id>` para ver logs. |
+| Claude Desktop no conecta               | Verifica que el comando en `claude_desktop_config.json` sea correcto y que `cwd` apunte a la ruta del proyecto. Reinicia Claude. |
 
 ## 🌍 API externa usada
 
