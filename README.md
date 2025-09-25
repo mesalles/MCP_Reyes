@@ -115,12 +115,19 @@ Y cambia la URL a `http://127.0.0.1:8084/mcp`.
 
 ### Claude Desktop
 
-Claude Desktop solo ejecuta procesos locales. Para conectarlo:
+Claude Desktop **no** puede llamar a un servidor HTTP remoto por sí mismo: solo lanza comandos locales. Por eso necesitas que el servidor MCP esté disponible en tu máquina (directamente o a través de un túnel) **antes** de arrancar Claude.
 
-1. **Copia local**: clona el repositorio y ejecuta `uv run start_server.py --host 127.0.0.1 --port 8084` antes de iniciar Claude.
-2. **Túnel SSH**: abre un túnel `ssh -L 8084:localhost:8084 usuario@IP` y define en `claude_desktop_config.json` un comando que establezca el túnel antes de lanzar el cliente MCP.
+1. **Decide cómo traer el servidor a tu máquina**
 
-Una vez tengas listo el servidor (pasos 1 y 2), añade algo similar a tu `claude_desktop_config.json`:
+    **Ejecución local:** clona el repo y arranca `uv run start_server.py --host 127.0.0.1 --port 8084` en una terminal independiente.
+
+    **Túnel SSH:** si el servidor vive en otra máquina, abre `ssh -L 8084:localhost:8084 usuario@IP_REMOTO` para redirigir el puerto 8084 hacia tu equipo. Mantén el túnel abierto mientras uses Claude.
+
+2. **Configura Claude para lanzar/verificar el servidor**
+
+    Claude ejecutará un comando local cada vez que necesite el servidor MCP. Puedes usar `uv run start_server.py` (cuando trabajas con una copia local) o un script que establezca el túnel y compruebe que responde.
+
+Como punto de partida, añade algo similar a tu `claude_desktop_config.json`:
 
 ```json
 {
@@ -141,7 +148,28 @@ Una vez tengas listo el servidor (pasos 1 y 2), añade algo similar a tu `claude
 }
 ```
 
-> Ajusta la ruta de `cwd` a la ubicación real del proyecto en tu máquina.
+Si dependes de un túnel SSH, puedes hacer que Claude abra el túnel, espere a que responda el `/health` y mantenga la sesión mientras esté activo:
+
+```json
+{
+  "mcpServers": {
+    "mcp-uji-academic": {
+      "command": "bash",
+      "args": [
+        "-lc",
+        "ssh -N -L 8084:localhost:8084 usuario@IP_REMOTO & SSH_PID=$!; \\
+         sleep 2; \\
+         curl --fail http://127.0.0.1:8084/health >/dev/null; \\
+         wait $SSH_PID"
+      ]
+    }
+  }
+}
+```
+
+- Ajusta `cwd` a la ruta real del proyecto cuando uses la copia local.
+- En el ejemplo del túnel, reemplaza `usuario@IP_REMOTO`, ajusta puertos si lo necesitas y añade lógica de limpieza si piensas cerrar Claude manualmente.
+- Reinicia Claude Desktop tras modificar el archivo para que recargue la configuración.
 
 > `npx @modelcontextprotocol/inspector` es una herramienta de testing. VS Code y Claude necesitan configuraciones JSON propias.
 
