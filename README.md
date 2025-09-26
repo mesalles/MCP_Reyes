@@ -181,8 +181,6 @@ Y cambia la URL a `http://127.0.0.1:8084/mcp`.
 
 ### Claude Desktop
 
-### Claude Desktop
-
 Claude Desktop **no** puede llamar a un servidor HTTP remoto por sí mismo: solo lanza comandos locales. Por eso necesitas que el servidor MCP esté disponible en tu máquina **antes** de arrancar Claude.
 
 Añade a tu `claude_desktop_config.json`:
