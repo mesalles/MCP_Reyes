@@ -157,12 +157,12 @@ async def mcp_endpoint(request: dict):
                 "result": {
                     "tools": [
                         {
-                            "name": "shodan",
-                            "description": "Búsqueda de eventos shodan",
+                            "name": "domain-tools",
+                            "description": "Búsqueda de dominios en domain-tools",
                             "inputSchema": {
                                 "type": "object",
                                 "properties": {
-                                    "query": {"type": "string", "description": "Término de búsqueda en Shodan"},
+                                    "query": {"type": "string", "description": "Término de búsqueda en domain-tools"},
                                 }
                             }
                         },
@@ -272,7 +272,7 @@ async def mcp_endpoint(request: dict):
             
             try:
                 # Execute tool logic directly (same as in RemoteMCPServer.setup_tools)
-                 if tool_name == "shodan":
+                 if tool_name == "domain-tools":
                     query = arguments.get("query", 0)
                     response = mcp_server_instance.client.get_subjects(query=query)
                     result_text = json.dumps({
@@ -421,7 +421,8 @@ async def mcp_endpoint(request: dict):
                     "version": "1.0.0",
                     "remote_access": True,
                     "endpoints": {
-                        "subjects": "Subject information and management",
+                        "tools": "Access to intel tools",
+                        # "subjects": "Subject information and management",
                         # "degrees": "Degree program information", 
                         # "schedules": "Class and exam schedules",
                         # "locations": "University location information"
@@ -511,17 +512,29 @@ async def list_tools():
     return {
         "tools": [
             {
-                "name": "get_subjects",
-                "description": "Get list of subjects with pagination support",
+                "name": "domain-tools",
+                "description": "Búsqueda de dominios en domain-tools",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "start": {"type": "integer", "description": "Starting record number", "default": 0},
-                        "limit": {"type": "integer", "description": "Number of records to return", "default": 20},
-                        "full": {"type": "boolean", "description": "Return full subject details", "default": False}
+                        "query": {"type": "string", "description": "Término de búsqueda en domain-tools"},
                     }
                 }
             },
+
+            # {
+            #     "name": "get_subjects",
+            #     "description": "Get list of subjects with pagination support",
+            #     "inputSchema": {
+            #         "type": "object",
+            #         "properties": {
+            #             "start": {"type": "integer", "description": "Starting record number", "default": 0},
+            #             "limit": {"type": "integer", "description": "Number of records to return", "default": 20},
+            #             "full": {"type": "boolean", "description": "Return full subject details", "default": False}
+            #         }
+            #     }
+            # },
+
             # {
             #     "name": "search_subjects",
             #     "description": "Search subjects by name or ID",
