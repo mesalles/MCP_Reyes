@@ -69,8 +69,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="MCP UJI Academic Server",
-    description="Remote access to Universitat Jaume I academic information via MCP",
+    title="MCP Reyes Server",
+    description="Remote access to CCN-CERT Reyes tool via MCP",
     version="1.0.0",
     lifespan=lifespan
 )
