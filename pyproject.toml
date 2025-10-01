@@ -1,7 +1,7 @@
 [project]
-name = "mcp-uji-academic"
+name = "mcp-reyes"
 version = "0.1.0"
-description = "MCP server providing access to Universitat Jaume I (UJI) academic information system"
+description = "MCP server providing access to CCN-CERT Reyes tools"
 readme = "README.md"
 requires-python = ">=3.12.9"
 dependencies = [
@@ -33,7 +33,7 @@ dev-dependencies = [
 ]
 
 [project.scripts]
-mcp-uji-academic = "server:main"
+mcp-reyes = "server:main"
 
 [tool.black]
 line-length = 88

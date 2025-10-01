@@ -1,5 +1,5 @@
 # %% Data Models
-## Pydantic models for UJI Academic API responses
+## Pydantic models for Reyes API responses
 
 from typing import Optional, List, Any, Dict
 from pydantic import BaseModel, Field
