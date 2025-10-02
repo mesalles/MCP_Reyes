@@ -33,8 +33,8 @@ class ReyesConfig:
 
     # Credentials
 
-    CLIENT_CERT = "../ccn-reyes.cert.pem"
-    CLIENT_KEY = "../ccn-reyes.key.pem"
+    CLIENT_CERT = "./ccn-reyes.cert.pem"
+    CLIENT_KEY = "./ccn-reyes.key.pem"
     AUTH_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJlbWVzYWxsZXNuIiwic2NvcGUiOiJFTkModjFLWGVwRktobVliRWtZWlYrWTRXL3pWZzB3dS9IeEkpIiwiaWF0IjoxNjY4NzU5MzkwfQ.AZGIWIrvpQNNsIQhSYIbH0IIK2wp-f7DRC9fwFsV_h2-rb4TekHoUzN4PzOrKcwN_2qbZlaXw1lY7aX8dCWWGh6samZDQe99tV7DH9lMXCLOhy1FIJUFdPx1Ihq7zwUNhtKiHW-oTEZ-Drb2K_lDNkkR6NQT9b4rUbLYLZprw8Nt_sto5oW9v1jNJLsB2GhKRcBIvElb1EQFDRtqnlbMjHAep48a2bBR5A19MMJpYXc6m5BkmUUHyYTlNJfsPejaoK59fN32xIH3kLyNsUBbF5z_afRqZcIofy5gwAw6OxJYj7nmqtqRjYPStLe7fclHRzUQkRLEBLsKrTLmvpLTwQ"
     
     # Default values
