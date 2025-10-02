@@ -15,7 +15,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 # Local imports
-from api_client import UJIAcademicClient, create_uji_client
+from api_client import ReyesClient, create_reyes_client
+# from api_client import UJIAcademicClient, create_uji_client
 # from models import (
 #     Subject, Degree, Location, ScheduleEvent, APIError,
 #     SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse

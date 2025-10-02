@@ -507,6 +507,10 @@ class ReyesClient:
 # %% Factory Function
 ## Factory function for creating client instances
 
-def create_uji_client(timeout: int = ReyesConfig.DEFAULT_TIMEOUT) -> ReyesClient:
+def create_reyes_client(timeout: int = ReyesConfig.DEFAULT_TIMEOUT) -> ReyesClient:
     """Factory function to create UJI Academic API client"""
     return ReyesClient(timeout=timeout)
+
+# def create_uji_client(timeout: int = ReyesConfig.DEFAULT_TIMEOUT) -> ReyesClient:
+#     """Factory function to create UJI Academic API client"""
+#     return ReyesClient(timeout=timeout)
