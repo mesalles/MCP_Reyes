@@ -114,6 +114,7 @@ class ReyesClient:
             "Authorization": f"Bearer {ReyesConfig.AUTH_TOKEN}"
         })
     
+
     def _make_request(self, url: str, headers: Optional[Dict[str, str]] = None, 
                      params: Optional[Dict[str, Any]] = None, use_cache: bool = True) -> Any:
         """Make HTTP request with error handling and caching"""
