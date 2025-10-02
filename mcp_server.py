@@ -279,8 +279,9 @@ async def mcp_endpoint(request: dict):
                     query = arguments.get("query", 0)
                     response = mcp_server_instance.client.domaintools(query=query)
                     result_text = json.dumps({
-                        "domains": [domain.model_dump() for domain in response.content],
-                        "total_subjects": len(response.content)
+                        "success": response.success,
+                        "data": response.data,
+                        "error": response.error
                     }, indent=2, ensure_ascii=False)
 
                 # elif tool_name == "get_subjects":
