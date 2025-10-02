@@ -89,11 +89,11 @@ class SimpleCache:
         logger.debug("Cache cleared")
 
 
-# %% UJI API Client
-## Main client class for UJI Academic APIs
+# %% Reyes API Client
+## Main client class for Reyes APIs
 
-class UJIAcademicClient:
-    """Client for UJI Academic Information System APIs"""
+class ReyesClient:
+    """Client for Reyes APIs"""
     
     def __init__(self, timeout: int = ReyesConfig.DEFAULT_TIMEOUT):
         self.timeout = timeout
@@ -158,12 +158,81 @@ class UJIAcademicClient:
                 endpoint=url
             )
 
+# %% UJI API Client
+## Main client class for UJI Academic APIs
+
+# class UJIAcademicClient:
+#     """Client for UJI Academic Information System APIs"""
+    
+#     def __init__(self, timeout: int = ReyesConfig.DEFAULT_TIMEOUT):
+#         self.timeout = timeout
+#         self.cache = SimpleCache()
+#         self.session = requests.Session()
+#         self.session.timeout = timeout
+    
+#     def _make_request(self, url: str, headers: Optional[Dict[str, str]] = None, 
+#                      params: Optional[Dict[str, Any]] = None, use_cache: bool = True) -> Any:
+#         """Make HTTP request with error handling and caching"""
+#         cache_key = f"{url}_{str(params)}_{str(headers)}"
+        
+#         # Check cache first
+#         if use_cache:
+#             cached_result = self.cache.get(cache_key)
+#             if cached_result is not None:
+#                 return cached_result
+        
+#         try:
+#             logger.info(f"Making request to: {url}")
+#             response = self.session.get(url, headers=headers, params=params)
+#             response.raise_for_status()
+            
+#             # Determine response type and parse accordingly
+#             content_type = response.headers.get('content-type', '').lower()
+            
+#             if 'application/json' in content_type:
+#                 result = response.json()
+#             elif 'text/calendar' in content_type or 'text/plain' in content_type:
+#                 result = response.text
+#             else:
+#                 result = response.text
+            
+#             # Cache successful responses
+#             if use_cache and response.status_code == 200:
+#                 self.cache.set(cache_key, result)
+            
+#             return result
+            
+#         except requests.exceptions.HTTPError as e:
+#             logger.error(f"HTTP error for {url}: {e}")
+#             raise APIError(
+#                 error="HTTP_ERROR",
+#                 message=f"HTTP {e.response.status_code}: {str(e)}",
+#                 status_code=e.response.status_code,
+#                 endpoint=url
+#             )
+#         except requests.exceptions.RequestException as e:
+#             logger.error(f"Request error for {url}: {e}")
+#             raise APIError(
+#                 error="REQUEST_ERROR",
+#                 message=str(e),
+#                 status_code=0,
+#                 endpoint=url
+#             )
+#         except Exception as e:
+#             logger.error(f"Unexpected error for {url}: {e}")
+#             raise APIError(
+#                 error="UNKNOWN_ERROR",
+#                 message=str(e),
+#                 status_code=0,
+#                 endpoint=url
+#             )
+
     # %% Tools Methods
     ## Methods for tools-related API endpoints
     
-    def shodan(self, query: str ="",) -> SubjectsResponse:
-        """Query shodan tool"""
-        url = f"{ReyesConfig.TOOLS_API_BASE}shodan"
+    def domaintools(self, query: str ="",) -> SubjectsResponse:
+        """Query domain-tools tool"""
+        url = f"{ReyesConfig.TOOLS_API_BASE}domain-tools"
         params = {"q": query}
 
         data = self._make_request(url, params=params)
@@ -435,6 +504,6 @@ class UJIAcademicClient:
 # %% Factory Function
 ## Factory function for creating client instances
 
-def create_uji_client(timeout: int = ReyesConfig.DEFAULT_TIMEOUT) -> UJIAcademicClient:
+def create_uji_client(timeout: int = ReyesConfig.DEFAULT_TIMEOUT) -> ReyesClient:
     """Factory function to create UJI Academic API client"""
-    return UJIAcademicClient(timeout=timeout)
+    return ReyesClient(timeout=timeout)
