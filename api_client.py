@@ -112,6 +112,7 @@ class ReyesClient:
         self.session.cert = (ReyesConfig.CLIENT_CERT, ReyesConfig.CLIENT_KEY)
         self.session.headers.update({
             "Authorization": f"Bearer {ReyesConfig.AUTH_TOKEN}"
+        })
     
     def _make_request(self, url: str, headers: Optional[Dict[str, str]] = None, 
                      params: Optional[Dict[str, Any]] = None, use_cache: bool = True) -> Any:
