@@ -252,7 +252,7 @@ class ReyesClient:
     def domaintools(self, query: str ="",) -> DomainResponse:
         """Query domain-tools tool"""
         url = f"{ReyesConfig.TOOLS_API_BASE}domain-tools"
-        params = {"q": query}
+        params = {"q": f"domain:{query}"}
 
         data = self._make_request(url, params=params)
         logger.error(f"Raw data from domain-tools: {data}")
