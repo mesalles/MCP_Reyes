@@ -158,11 +158,11 @@ async def mcp_endpoint(request: dict):
                     "tools": [
                         {
                             "name": "domain-tools",
-                            "description": "Búsqueda de dominios en domain-tools",
+                            "description": "Busqueda de dominios en domain-tools",
                             "inputSchema": {
                                 "type": "object",
                                 "properties": {
-                                    "query": {"type": "string", "description": "Término de búsqueda en domain-tools"},
+                                    "query": {"type": "string", "description": "Termino de busqueda en domain-tools"},
                                 }
                             }
                         },
