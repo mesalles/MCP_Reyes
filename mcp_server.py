@@ -16,9 +16,11 @@ import uvicorn
 
 # Local imports
 from api_client import UJIAcademicClient, create_uji_client
+# from models import (
+#     Subject, Degree, Location, ScheduleEvent, APIError,
+#     SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse
 from models import (
-    Subject, Degree, Location, ScheduleEvent, APIError,
-    SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse
+    Subject, APIError
 )
 
 # Configure logging
