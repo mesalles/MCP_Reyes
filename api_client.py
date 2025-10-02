@@ -9,10 +9,13 @@ import requests
 import aiohttp
 from icalendar import Calendar, Event
 from models import (
-    Subject, SubjectsResponse, SubjectGroupsResponse, SubjectSubgroupsResponse,
-    Degree, DegreesResponse, Location, LocationsResponse,
-    ScheduleEvent, ScheduleResponse, APIError, PaginationParams
+    Subject, APIError, PaginationParams
 )
+# from models import (
+#     Subject, SubjectsResponse, SubjectGroupsResponse, SubjectSubgroupsResponse,
+#     Degree, DegreesResponse, Location, LocationsResponse,
+#     ScheduleEvent, ScheduleResponse, APIError, PaginationParams
+# )
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
