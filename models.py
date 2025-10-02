@@ -28,25 +28,18 @@ class BaseResponse(BaseModel):
     page: Optional[PageInfo] = Field(description="Pagination information")
 
 
-# %% Subject Models
-## Models for subject (asignatura) related API responses
+# %% domain-tools Models
+## Models for domain-tools related API responses
 
-class Subject(BaseModel):
-    """Individual subject information"""
-    id: str = Field(alias="_id", description="Unique subject identifier (e.g., 'AE1001')")
-    nombreCA: Optional[str] = Field(default=None, description="Subject name in Catalan")
-    nombreES: Optional[str] = Field(default=None, description="Subject name in Spanish") 
-    nombreEN: Optional[str] = Field(default=None, description="Subject name in English")
-    estudiantesMatriculados: Optional[str] = Field(default=None, description="Number of enrolled students")
-    creditos: Optional[str] = Field(default=None, description="ECTS credits")
-    curso: Optional[str] = Field(default=None, description="Academic year/level")
-    semestre: Optional[str] = Field(default=None, description="Semester (1 or 2)")
-    tipo: Optional[str] = Field(default=None, description="Subject type")
-    departamento: Optional[str] = Field(default=None, description="Department")
+class Domain(BaseModel):
+    """Individual domain information"""
+    success: bool = Field(description="Indicates if the response is valid")
+    data: Dict[str, Any] = Field(description="Information about the domain")
+    error: Optional[List[Optional[str]]] = Field(default=None)
 
-class SubjectsResponse(BaseResponse):
-    """Response for subjects list endpoint"""
-    content: List[Subject] = Field(description="List of subjects")
+class DomainResponse(BaseResponse):
+    """Response for domain-tools endpoint"""
+    content: Domain = Field(description="Information about the domain")
 
 # class Subject(BaseModel):
 #     """Individual subject information"""

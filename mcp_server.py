@@ -279,7 +279,7 @@ async def mcp_endpoint(request: dict):
                     query = arguments.get("query", 0)
                     response = mcp_server_instance.client.domaintools(query=query)
                     result_text = json.dumps({
-                        "subjects": [subject.model_dump() for subject in response.content],
+                        "domains": [domain.model_dump() for domain in response.content],
                         "pagination": response.page.model_dump() if response.page else None,
                         "total_subjects": len(response.content)
                     }, indent=2, ensure_ascii=False)

@@ -9,7 +9,7 @@ import requests
 import aiohttp
 from icalendar import Calendar, Event
 from models import (
-    Subject, SubjectsResponse, APIError, PaginationParams
+    DomainResponse, Subject, SubjectsResponse, APIError, PaginationParams
 )
 # from models import (
 #     Subject, SubjectsResponse, SubjectGroupsResponse, SubjectSubgroupsResponse,
@@ -249,14 +249,14 @@ class ReyesClient:
     # %% Tools Methods
     ## Methods for tools-related API endpoints
     
-    def domaintools(self, query: str ="",) -> SubjectsResponse:
+    def domaintools(self, query: str ="",) -> DomainResponse:
         """Query domain-tools tool"""
         url = f"{ReyesConfig.TOOLS_API_BASE}domain-tools"
         params = {"q": query}
 
         data = self._make_request(url, params=params)
         logger.error(f"Raw data from domain-tools: {data}")
-        return SubjectsResponse(**data)
+        return DomainResponse(**data)
     
     # def get_subjects(self, start: int = 0, limit: int = 20, full: bool = False) -> SubjectsResponse:
     #     """Get list of subjects with pagination"""
