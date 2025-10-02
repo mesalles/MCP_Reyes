@@ -387,7 +387,7 @@ async def mcp_endpoint(request: dict):
                  }
             
             except Exception as e:
-                logger.error(f"Tool execution error: {e}{query}")
+                logger.error(f"Tool execution error: {e}")
                 return {
                     "jsonrpc": "2.0",
                     "id": request_id,

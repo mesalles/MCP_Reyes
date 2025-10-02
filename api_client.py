@@ -255,6 +255,7 @@ class ReyesClient:
         params = {"q": query}
 
         data = self._make_request(url, params=params)
+        logger.error(f"Raw data from domain-tools: {data}")
         return SubjectsResponse(**data)
     
     # def get_subjects(self, start: int = 0, limit: int = 20, full: bool = False) -> SubjectsResponse:
