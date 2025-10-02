@@ -30,6 +30,12 @@ class ReyesConfig:
     
     # Base URLs for different API endpoints
     TOOLS_API_BASE = "https://reyes.ccn-cert.cni.es/apireyes/api/v4/search/tool/"
+
+    # Credentials
+
+    CLIENT_CERT = "../ccn-reyes.cert.pem"
+    CLIENT_KEY = "../ccn-reyes.key.pem"
+    AUTH_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJlbWVzYWxsZXNuIiwic2NvcGUiOiJFTkModjFLWGVwRktobVliRWtZWlYrWTRXL3pWZzB3dS9IeEkpIiwiaWF0IjoxNjY4NzU5MzkwfQ.AZGIWIrvpQNNsIQhSYIbH0IIK2wp-f7DRC9fwFsV_h2-rb4TekHoUzN4PzOrKcwN_2qbZlaXw1lY7aX8dCWWGh6samZDQe99tV7DH9lMXCLOhy1FIJUFdPx1Ihq7zwUNhtKiHW-oTEZ-Drb2K_lDNkkR6NQT9b4rUbLYLZprw8Nt_sto5oW9v1jNJLsB2GhKRcBIvElb1EQFDRtqnlbMjHAep48a2bBR5A19MMJpYXc6m5BkmUUHyYTlNJfsPejaoK59fN32xIH3kLyNsUBbF5z_afRqZcIofy5gwAw6OxJYj7nmqtqRjYPStLe7fclHRzUQkRLEBLsKrTLmvpLTwQ"
     
     # Default values
     DEFAULT_TIMEOUT = 30
@@ -103,11 +109,19 @@ class ReyesClient:
         self.cache = SimpleCache()
         self.session = requests.Session()
         self.session.timeout = timeout
+        self.session.cert = (ReyesConfig.CLIENT_CERT, ReyesConfig.CLIENT_KEY)
+        self.session.headers.update({
+            "Authorization": f"Bearer {ReyesConfig.AUTH_TOKEN}"
     
     def _make_request(self, url: str, headers: Optional[Dict[str, str]] = None, 
                      params: Optional[Dict[str, Any]] = None, use_cache: bool = True) -> Any:
         """Make HTTP request with error handling and caching"""
         cache_key = f"{url}_{str(params)}_{str(headers)}"
+
+        # Merge headers with session headers
+        request_headers = self.session.headers.copy()
+        if headers:
+            request_headers.update(headers)
         
         # Check cache first
         if use_cache:
