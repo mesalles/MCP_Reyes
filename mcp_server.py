@@ -20,7 +20,7 @@ from api_client import UJIAcademicClient, create_uji_client
 #     Subject, Degree, Location, ScheduleEvent, APIError,
 #     SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse
 from models import (
-    Subject, APIError
+    Subject, SubjectsResponse, APIError
 )
 
 # Configure logging

@@ -44,6 +44,10 @@ class Subject(BaseModel):
     tipo: Optional[str] = Field(default=None, description="Subject type")
     departamento: Optional[str] = Field(default=None, description="Department")
 
+class SubjectsResponse(BaseResponse):
+    """Response for subjects list endpoint"""
+    content: List[Subject] = Field(description="List of subjects")
+
 # class Subject(BaseModel):
 #     """Individual subject information"""
 #     id: str = Field(alias="_id", description="Unique subject identifier (e.g., 'AE1001')")
