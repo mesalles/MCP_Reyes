@@ -277,7 +277,7 @@ async def mcp_endpoint(request: dict):
                 # Execute tool logic directly (same as in RemoteMCPServer.setup_tools)
                  if tool_name == "domain-tools":
                     query = arguments.get("query", 0)
-                    response = mcp_server_instance.client.get_subjects(query=query)
+                    response = mcp_server_instance.client.domaintools(query=query)
                     result_text = json.dumps({
                         "subjects": [subject.model_dump() for subject in response.content],
                         "pagination": response.page.model_dump() if response.page else None,
