@@ -43,7 +43,7 @@ class HTTPMCPServer:
     """HTTP-only MCP Server"""
     
     def __init__(self):
-        self.client: Optional[UJIAcademicClient] = None
+        self.client: Optional[ReyesClient] = None
     
     def cleanup(self):
         """Cleanup resources"""
@@ -271,7 +271,7 @@ async def mcp_endpoint(request: dict):
             
             # Initialize client if needed
             if not mcp_server_instance.client:
-                mcp_server_instance.client = create_uji_client()
+                mcp_server_instance.client = create_reyes_client()
             
             try:
                 # Execute tool logic directly (same as in RemoteMCPServer.setup_tools)
