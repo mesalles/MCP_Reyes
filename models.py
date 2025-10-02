@@ -31,15 +31,17 @@ class BaseResponse(BaseModel):
 # %% domain-tools Models
 ## Models for domain-tools related API responses
 
-class Domain(BaseModel):
-    """Individual domain information"""
+# class Domain(BaseModel):
+#     """Individual domain information"""
+#     success: bool = Field(description="Indicates if the response is valid")
+#     data: Dict[str, Any] = Field(description="Information about the domain")
+#     error: Optional[List[Optional[str]]] = Field(default=None)
+
+class DomainResponse(BaseModel):
+    """Response for domain-tools endpoint"""
     success: bool = Field(description="Indicates if the response is valid")
     data: Dict[str, Any] = Field(description="Information about the domain")
     error: Optional[List[Optional[str]]] = Field(default=None)
-
-class DomainResponse(BaseResponse):
-    """Response for domain-tools endpoint"""
-    content: Domain = Field(description="Information about the domain")
 
 # class Subject(BaseModel):
 #     """Individual subject information"""
