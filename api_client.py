@@ -9,7 +9,7 @@ import requests
 import aiohttp
 from icalendar import Calendar, Event
 from models import (
-    DomainResponse, Subject, SubjectsResponse, APIError, PaginationParams
+    DomainResponse, Domain, APIError, PaginationParams
 )
 # from models import (
 #     Subject, SubjectsResponse, SubjectGroupsResponse, SubjectSubgroupsResponse,

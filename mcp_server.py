@@ -21,7 +21,7 @@ from api_client import ReyesClient, create_reyes_client
 #     Subject, Degree, Location, ScheduleEvent, APIError,
 #     SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse
 from models import (
-    Subject, SubjectsResponse, APIError
+    Domain, DomainResponse, APIError
 )
 
 # Configure logging
