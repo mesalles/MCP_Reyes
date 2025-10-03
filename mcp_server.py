@@ -21,7 +21,7 @@ from api_client import ReyesClient, create_reyes_client
 #     Subject, Degree, Location, ScheduleEvent, APIError,
 #     SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse
 from models import (
-    DomainResponse, APIError
+    DomainResponse, VirustotalResponse, APIError
 )
 
 # Configure logging
@@ -169,6 +169,16 @@ async def mcp_endpoint(request: dict):
                                 }
                             }
                         },
+                        {
+                            "name": "virus-total",
+                            "description": "Busqueda de direcciones ip en virus-total",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "query": {"type": "string", "description": "Termino de busqueda en virus-total"},
+                                }
+                            }
+                        },
                         # {
                         #     "name": "get_subjects",
                         #     "description": "Get list of subjects with pagination support. Returns subjects from UJI academic system.",
@@ -278,6 +288,14 @@ async def mcp_endpoint(request: dict):
                  if tool_name == "domain-tools":
                     query = arguments.get("query", 0)
                     response = mcp_server_instance.client.domaintools(query=query)
+                    result_text = json.dumps({
+                        "success": response.success,
+                        "data": response.data,
+                        "error": response.error
+                    }, indent=2, ensure_ascii=False)
+                 elif tool_name == "virus-total":
+                    query = arguments.get("query", 0)
+                    response = mcp_server_instance.client.virustotal(query=query)
                     result_text = json.dumps({
                         "success": response.success,
                         "data": response.data,
@@ -521,6 +539,16 @@ async def list_tools():
                     "type": "object",
                     "properties": {
                         "query": {"type": "string", "description": "Termino de busqueda en domain-tools"},
+                    }
+                }
+            },
+            {
+                "name": "virus-total",
+                "description": "Busqueda de direcciones ip en virus-total",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Termino de busqueda en virus-total"},
                     }
                 }
             },

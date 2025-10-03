@@ -43,6 +43,12 @@ class DomainResponse(BaseModel):
     data: Dict[str, Any] = Field(description="Information about the domain")
     error: Optional[List[Optional[str]]] = Field(default=None)
 
+class VirustotalResponse(BaseModel):
+    """Response for virustotal endpoint"""
+    success: bool = Field(description="Indicates if the response is valid")
+    data: Dict[str, Any] = Field(description="Information about the ip address")
+    error: Optional[List[Optional[str]]] = Field(default=None)
+
 # class Subject(BaseModel):
 #     """Individual subject information"""
 #     id: str = Field(alias="_id", description="Unique subject identifier (e.g., 'AE1001')")
