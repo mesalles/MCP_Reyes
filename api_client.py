@@ -9,7 +9,7 @@ import requests
 import aiohttp
 from icalendar import Calendar, Event
 from models import (
-    DomainResponse, VirustotalResponse, APIError, PaginationParams
+    DomainResponse, VirustotalResponse, CriminalIPResponse, APIError, PaginationParams
 )
 # from models import (
 #     Subject, SubjectsResponse, SubjectGroupsResponse, SubjectSubgroupsResponse,
@@ -265,6 +265,14 @@ class ReyesClient:
         data = self._make_request(url, params=params)
         logger.error(f"Raw data from virustotal: {data}")
         return VirustotalResponse(**data)
+
+    def criminalip(self, query: str ="",) -> CriminalIPResponse:
+        """Query criminalip tool"""
+        url = f"{ReyesConfig.TOOLS_API_BASE}criminalip"
+        params = {"q": f"ip:{query}"}
+        data = self._make_request(url, params=params)
+        logger.error(f"Raw data from criminalip: {data}")
+        return CriminalIPResponse(**data)
     
     # def get_subjects(self, start: int = 0, limit: int = 20, full: bool = False) -> SubjectsResponse:
     #     """Get list of subjects with pagination"""
