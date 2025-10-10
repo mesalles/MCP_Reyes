@@ -5,6 +5,11 @@ services:
     build: .
     ports:
       - "8084:8084"
+    restart: unless-stopped
     networks:
       - mesalles-network
-    restart: unless-stopped
+
+networks:
+  mesalles-network:
+    external: true
+
