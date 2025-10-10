@@ -21,7 +21,7 @@ from api_client import ReyesClient, create_reyes_client
 #     Subject, Degree, Location, ScheduleEvent, APIError,
 #     SubjectsResponse, DegreesResponse, LocationsResponse, ScheduleResponse
 from models import (
-    DomainResponse, VirustotalResponse, CriminalIPResponse, APIError
+    DomainResponse, VirustotalResponse, CriminalIPResponse, ShodanResponse, APIError
 )
 
 # Configure logging
@@ -188,6 +188,16 @@ async def mcp_endpoint(request: dict):
                                     "query": {"type": "string", "description": "Termino de busqueda en criminal-ip"},
                                 }
                             }
+                        },
+                        {
+                            "name": "shodan",
+                            "description": "Busqueda de direcciones ip en shodan",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "query": {"type": "string", "description": "Termino de busqueda en shodan"},
+                                }
+                            }
                         }
 
                         # {
@@ -315,6 +325,14 @@ async def mcp_endpoint(request: dict):
                  elif tool_name == "criminal-ip":
                     query = arguments.get("query", 0)
                     response = mcp_server_instance.client.criminalip(query=query)
+                    result_text = json.dumps({
+                        "success": response.success,
+                        "data": response.data,
+                        "error": response.error
+                    }, indent=2, ensure_ascii=False)
+                 elif tool_name == "shodan":
+                    query = arguments.get("query", 0)
+                    response = mcp_server_instance.client.shodan(query=query)
                     result_text = json.dumps({
                         "success": response.success,
                         "data": response.data,
@@ -580,8 +598,17 @@ async def list_tools():
                         "query": {"type": "string", "description": "Termino de busqueda en criminal-ip"},
                     }
                 }
-            }
-
+            },
+            {
+                "name": "shodan",
+                "description": "Busqueda de direcciones ip en shodan",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Termino de busqueda en shodan"},
+                    }
+                }    
+            }        
             # {
             #     "name": "get_subjects",
             #     "description": "Get list of subjects with pagination support",
